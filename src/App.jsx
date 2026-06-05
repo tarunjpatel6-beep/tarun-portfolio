@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import FinanceArena from "./FinanceArena";
 
 // ═══════════════════════════════════════════════════════════════
 // SITE_CONFIG — Edit YOUR content here. Don't touch anything below.
@@ -243,7 +244,7 @@ function SectionHeader({ label, num, title }) {
 // ═══════════════════════════════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════════════════════════════
-const PAGES = ["Home", "About", "Portfolio", "Articles", "Contact"];
+const PAGES = ["Home", "About", "Portfolio", "Articles", "Arena", "Contact"];
 
 function Nav({ page, setPage }) {
   const [scrolled, setScrolled] = useState(false);
@@ -608,6 +609,7 @@ export default function App() {
       {page === "About" && <AboutPage />}
       {page === "Portfolio" && <PortfolioPage />}
       {page === "Articles" && <ArticlesPage />}
+      {page === "Arena" && <FinanceArena />}
       {page === "Contact" && <ContactPage />}
 
       <footer style={{ padding: "36px 32px", borderTop: `1px solid ${C.navyMid}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
