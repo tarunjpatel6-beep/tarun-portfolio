@@ -721,6 +721,23 @@ export default function FinanceArena() {
           <button onClick={() => setScreen("leaderboard")} style={{ marginTop: 18, background: "transparent", border: "none", color: "#6b7280", fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>
             View Leaderboard
           </button>
+
+          <div style={{ marginTop: 40, maxWidth: 380, width: "100%" }}>
+            <div style={{ fontSize: 14, fontFamily: "'Bebas Neue',cursive", letterSpacing: 2, color: "#f97316", marginBottom: 14, textAlign: "center" }}>HOW IT WORKS</div>
+            <div style={{ background: "#0d1117", border: "1px solid #1f2937", borderRadius: 12, padding: 20, fontSize: 13, color: "#9ca3af", lineHeight: 1.7 }}>
+              <p style={{ marginBottom: 12 }}>Play 5 FP&A challenges — from variance classification to CFO-level scenario questions — each with AI-powered coaching that breaks down every answer.</p>
+              <p style={{ marginBottom: 12 }}>Earn XP based on accuracy, speed, and streak multipliers. Your total XP determines your rank, from <span style={{ color: "#6b7280" }}>📋 Intern</span> all the way to <span style={{ color: "#f97316" }}>👔 CFO</span>.</p>
+              <p style={{ marginBottom: 0 }}>The leaderboard is live — anyone who plays competes on the same board. Enter your name and see where you stack up.</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+              {[["📋 Intern", "0 XP", "#6b7280"], ["📊 Analyst", "300 XP", "#3b82f6"], ["📈 Sr. Analyst", "800 XP", "#8b5cf6"], ["💼 FP&A Mgr", "1,800 XP", "#f59e0b"], ["🎯 Director", "3,500 XP", "#ef4444"], ["⚡ VP Finance", "6,000 XP", "#10b981"], ["👔 CFO", "12,000 XP", "#f97316"]].map(([rank, xp, col]) => (
+                <div key={rank} style={{ background: "#0d1117", border: `1px solid ${col}22`, borderRadius: 8, padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 12, color: "#d1d5db" }}>{rank}</span>
+                  <span style={{ fontSize: 11, fontFamily: "monospace", color: col }}>{xp}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
