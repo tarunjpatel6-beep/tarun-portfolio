@@ -678,7 +678,7 @@ export default function FinanceArena() {
   const xpPct = rank && nextRank ? ((player.xp - rank.min) / (nextRank.min - rank.min) * 100) : 100;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#030712", color: "#fff", fontFamily: "'DM Sans',sans-serif", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "#030712", color: "#fff", fontFamily: "'DM Sans',sans-serif", position: "relative", paddingTop: 80 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
         *{box-sizing:border-box;}
