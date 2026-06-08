@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import FinanceArena from "./FinanceArena";
+import EVMSModule from "./EVMSModule";
 
 // ═══════════════════════════════════════════════════════════════
 // SITE_CONFIG — Edit YOUR content here. Don't touch anything below.
@@ -244,7 +245,7 @@ function SectionHeader({ label, num, title }) {
 // ═══════════════════════════════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════════════════════════════
-const PAGES = ["Home", "About", "Portfolio", "Articles", "Arena", "Contact"];
+const PAGES = ["Home", "About", "Portfolio", "Articles", "Arena", "Lab", "Contact"];
 
 function Nav({ page, setPage }) {
   const [scrolled, setScrolled] = useState(false);
@@ -610,6 +611,7 @@ export default function App() {
       {page === "Portfolio" && <PortfolioPage />}
       {page === "Articles" && <ArticlesPage />}
       {page === "Arena" && <FinanceArena />}
+      {page === "Lab" && <EVMSModule />}
       {page === "Contact" && <ContactPage />}
 
       <footer style={{ padding: "36px 32px", borderTop: `1px solid ${C.navyMid}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
