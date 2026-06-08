@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { QUESTION_BANKS, getQuestions } from "./evmsQuestions";
 
 // ─── Firebase (reuse existing app if already initialized) ─────────
 const firebaseConfig = {
@@ -14,14 +15,16 @@ const firebaseConfig = {
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const loadProgress = async (userId) => {
+const userDocId = (name, pin) => `${name.toLowerCase().trim().replace(/[^a-z0-9]/g, "")}-${pin}`;
+
+const loadUser = async (name, pin) => {
   try {
-    const snap = await getDoc(doc(db, "evms-progress", userId));
+    const snap = await getDoc(doc(db, "evms-users", userDocId(name, pin)));
     return snap.exists() ? snap.data() : null;
   } catch { return null; }
 };
-const saveProgress = async (userId, data) => {
-  try { await setDoc(doc(db, "evms-progress", userId), data); } catch {}
+const saveUser = async (name, pin, data) => {
+  try { await setDoc(doc(db, "evms-users", userDocId(name, pin)), data); } catch {}
 };
 
 // ─── AI Coach ─────────────────────────────────────────────────────
@@ -908,36 +911,276 @@ const btnStyle = (color, primary = false) => ({
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// MAIN: Finance Lab Hub
+// PRACTICE MODE — freely practice the full question bank, instant feedback
 // ═══════════════════════════════════════════════════════════════════
-export default function EVMSModule() {
-  const [screen, setScreen] = useState("hub");
-  const [activeModule, setActiveModule] = useState(null);
-  const [completed, setCompleted] = useState(new Set());
-  const [userId, setUserId] = useState(null);
+function PracticeMode({ moduleId, onBack }) {
+  const [deck] = useState(() => getQuestions(moduleId));
+  const [idx, setIdx] = useState(0);
+  const [answered, setAnswered] = useState(null);
+  const [correctCount, setCorrectCount] = useState(0);
 
-  useEffect(() => {
-    let id = null;
-    try { id = localStorage.getItem("evms-user-id"); } catch {}
-    if (!id) { id = "user-" + Math.random().toString(36).slice(2, 10); try { localStorage.setItem("evms-user-id", id); } catch {} }
-    setUserId(id);
-    loadProgress(id).then(data => { if (data?.completed) setCompleted(new Set(data.completed)); });
-  }, []);
+  const q = deck[idx];
+  const isLast = idx + 1 >= deck.length;
 
-  const completeModule = (moduleId) => {
-    const newCompleted = new Set(completed);
-    newCompleted.add(moduleId);
-    setCompleted(newCompleted);
-    if (userId) saveProgress(userId, { completed: Array.from(newCompleted), lastUpdated: Date.now() });
-    setScreen("hub");
-    setActiveModule(null);
+  const choose = (i) => {
+    if (answered !== null) return;
+    setAnswered(i);
+    if (i === q.correct) setCorrectCount(c => c + 1);
+  };
+  const next = () => {
+    if (isLast) { onBack(); return; }
+    setIdx(i => i + 1); setAnswered(null);
   };
 
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontFamily: T.mono, color: T.accent, letterSpacing: 1 }}>PRACTICE · {idx + 1}/{deck.length}</div>
+        <div style={{ fontSize: 11, fontFamily: T.mono, color: T.textMuted }}>{correctCount} correct</div>
+      </div>
+      <ProgressBar current={idx + 1} total={deck.length} />
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 22, marginBottom: 16 }}>
+        <div style={{ fontSize: 16, color: T.text, lineHeight: 1.6, marginBottom: 18 }}>{q.q}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {q.options.map((opt, i) => {
+            let bg = "transparent", bdr = T.border, col = T.textDim;
+            if (answered !== null) {
+              if (i === q.correct) { bg = "rgba(16,185,129,0.12)"; bdr = T.green; col = T.green; }
+              else if (i === answered) { bg = "rgba(239,68,68,0.12)"; bdr = T.red; col = T.red; }
+            }
+            return (
+              <button key={i} onClick={() => choose(i)}
+                style={{ background: bg, border: `1px solid ${bdr}`, color: col, borderRadius: 8, padding: "12px 16px", textAlign: "left", fontSize: 13, cursor: answered !== null ? "default" : "pointer", lineHeight: 1.5, transition: "all 0.2s" }}>
+                <span style={{ fontFamily: T.mono, marginRight: 8, opacity: 0.5 }}>{String.fromCharCode(65 + i)}.</span>{opt}
+              </button>
+            );
+          })}
+        </div>
+        {answered !== null && (
+          <div style={{ background: answered === q.correct ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${answered === q.correct ? T.green : T.red}44`, borderRadius: 8, padding: 14, marginTop: 14 }}>
+            <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.65 }}>{q.explain}</div>
+          </div>
+        )}
+      </div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <button onClick={onBack} style={btnStyle(T.textMuted)}>← Exit Practice</button>
+        {answered !== null && <button onClick={next} style={btnStyle(T.accent, true)}>{isLast ? "Finish" : "Next →"}</button>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FINAL EXAM — scored, 10 random questions, mastery threshold
+// ═══════════════════════════════════════════════════════════════════
+function FinalExam({ moduleId, onComplete, onBack }) {
+  const EXAM_SIZE = 10;
+  const PASS = 80;
+  const [deck] = useState(() => getQuestions(moduleId, EXAM_SIZE));
+  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [done, setDone] = useState(false);
+
+  const q = deck[idx];
+  const isLast = idx + 1 >= deck.length;
+
+  const submit = () => {
+    if (selected === null) return;
+    const newAnswers = [...answers, { q, selected, correct: selected === q.correct }];
+    setAnswers(newAnswers);
+    if (isLast) { setDone(true); }
+    else { setIdx(i => i + 1); setSelected(null); }
+  };
+
+  const score = Math.round((answers.filter(a => a.correct).length / deck.length) * 100);
+  const passed = score >= PASS;
+
+  if (done) {
+    return (
+      <div>
+        <div style={{ textAlign: "center", padding: "30px 20px", background: passed ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${passed ? T.green : T.red}44`, borderRadius: 12, marginBottom: 20 }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>{passed ? "🎓" : "📚"}</div>
+          <div style={{ fontFamily: T.display, fontSize: 30, color: passed ? T.green : T.red, letterSpacing: 2 }}>{passed ? "MODULE MASTERED" : "NOT YET — REVIEW & RETRY"}</div>
+          <div style={{ fontFamily: T.display, fontSize: 52, color: T.text, margin: "8px 0" }}>{score}%</div>
+          <div style={{ fontSize: 12, fontFamily: T.mono, color: T.textDim }}>{answers.filter(a => a.correct).length}/{deck.length} correct · {PASS}% to pass</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+          {answers.map((a, i) => (
+            <div key={i} style={{ background: T.card, border: `1px solid ${a.correct ? T.green + "33" : T.red + "33"}`, borderRadius: 8, padding: 12 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                <span style={{ color: a.correct ? T.green : T.red, fontSize: 14 }}>{a.correct ? "✓" : "✗"}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, color: T.text, lineHeight: 1.5, marginBottom: 4 }}>{a.q.q}</div>
+                  {!a.correct && <div style={{ fontSize: 11, color: T.textDim, lineHeight: 1.5 }}>{a.q.explain}</div>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={onBack} style={btnStyle(T.textMuted)}>← Back</button>
+          {passed ? (
+            <button onClick={() => onComplete(score)} style={btnStyle(T.green, true)}>Save Mastery ✓</button>
+          ) : (
+            <button onClick={() => onComplete(score)} style={btnStyle(T.accent, true)}>Save & Retry Later</button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontFamily: T.mono, color: T.gold, letterSpacing: 1 }}>FINAL EXAM · {idx + 1}/{deck.length}</div>
+        <div style={{ fontSize: 11, fontFamily: T.mono, color: T.textMuted }}>{PASS}% to pass</div>
+      </div>
+      <ProgressBar current={idx + 1} total={deck.length} />
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 22, marginBottom: 16 }}>
+        <div style={{ fontSize: 16, color: T.text, lineHeight: 1.6, marginBottom: 18 }}>{q.q}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {q.options.map((opt, i) => (
+            <button key={i} onClick={() => setSelected(i)}
+              style={{ background: selected === i ? T.accentGlow : "transparent", border: `1px solid ${selected === i ? T.accent : T.border}`, color: selected === i ? T.accent : T.textDim, borderRadius: 8, padding: "12px 16px", textAlign: "left", fontSize: 13, cursor: "pointer", lineHeight: 1.5, transition: "all 0.2s" }}>
+              <span style={{ fontFamily: T.mono, marginRight: 8, opacity: 0.5 }}>{String.fromCharCode(65 + i)}.</span>{opt}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button onClick={submit} disabled={selected === null} style={btnStyle(T.accent, true)}>{isLast ? "Submit Exam" : "Next Question →"}</button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// KNOWLEDGE MODULE WRAPPER — Learn / Practice / Exam sub-navigation
+// ═══════════════════════════════════════════════════════════════════
+function KnowledgeModule({ moduleId, LessonComponent, mastery, onComplete }) {
+  const [mode, setMode] = useState("menu");
+  const bankSize = (QUESTION_BANKS[moduleId] || []).length;
+
+  if (mode === "learn") return <LessonComponent onComplete={() => setMode("menu")} />;
+  if (mode === "practice") return <PracticeMode moduleId={moduleId} onBack={() => setMode("menu")} />;
+  if (mode === "exam") return <FinalExam moduleId={moduleId} onComplete={(score) => { onComplete(score); setMode("menu"); }} onBack={() => setMode("menu")} />;
+
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <button onClick={() => setMode("learn")} style={modeCard(T.accent)}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ fontSize: 26 }}>📖</div>
+            <div style={{ textAlign: "left", flex: 1 }}>
+              <div style={{ fontFamily: T.display, fontSize: 18, letterSpacing: 1, color: T.text }}>LEARN</div>
+              <div style={{ fontSize: 12, color: T.textDim }}>Work through the lesson with examples and concept checks</div>
+            </div>
+          </div>
+        </button>
+        <button onClick={() => setMode("practice")} style={modeCard(T.green)}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ fontSize: 26 }}>🎯</div>
+            <div style={{ textAlign: "left", flex: 1 }}>
+              <div style={{ fontFamily: T.display, fontSize: 18, letterSpacing: 1, color: T.text }}>PRACTICE</div>
+              <div style={{ fontSize: 12, color: T.textDim }}>Drill all {bankSize} questions with instant explanations — no scoring</div>
+            </div>
+          </div>
+        </button>
+        <button onClick={() => setMode("exam")} style={modeCard(T.gold)}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ fontSize: 26 }}>🎓</div>
+            <div style={{ textAlign: "left", flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ fontFamily: T.display, fontSize: 18, letterSpacing: 1, color: T.text }}>FINAL EXAM</div>
+                {mastery > 0 && <span style={{ fontSize: 10, fontFamily: T.mono, color: mastery >= 80 ? T.green : T.gold, background: T.bg, padding: "2px 8px", borderRadius: 10 }}>Best: {mastery}%</span>}
+              </div>
+              <div style={{ fontSize: 12, color: T.textDim }}>10 random questions · 80% to earn mastery</div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const modeCard = (color) => ({
+  background: T.card, border: `1px solid ${color}33`, borderRadius: 12,
+  padding: 18, cursor: "pointer", transition: "all 0.2s", width: "100%",
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════════
+export default function EVMSModule() {
+  const [screen, setScreen] = useState("login");
+  const [activeModule, setActiveModule] = useState(null);
+  const [completed, setCompleted] = useState(new Set());
+  const [mastery, setMastery] = useState({});
+  const [user, setUser] = useState(null); // { name, pin }
+  const [nameInput, setNameInput] = useState("");
+  const [pinInput, setPinInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  // Auto-login if remembered on this device
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("evms-user") || "null");
+      if (saved?.name && saved?.pin) {
+        setLoading(true);
+        loadUser(saved.name, saved.pin).then(data => {
+          setUser(saved);
+          if (data) { setCompleted(new Set(data.completed || [])); setMastery(data.mastery || {}); }
+          setScreen("hub");
+          setLoading(false);
+        });
+      }
+    } catch {}
+  }, []);
+
+  const doLogin = async () => {
+    if (!nameInput.trim() || pinInput.length !== 4) { setLoginError("Enter a name and 4-digit PIN."); return; }
+    setLoading(true); setLoginError("");
+    const u = { name: nameInput.trim(), pin: pinInput };
+    const data = await loadUser(u.name, u.pin);
+    setUser(u);
+    if (data) { setCompleted(new Set(data.completed || [])); setMastery(data.mastery || {}); }
+    try { localStorage.setItem("evms-user", JSON.stringify(u)); } catch {}
+    setScreen("hub");
+    setLoading(false);
+  };
+
+  const logout = () => {
+    try { localStorage.removeItem("evms-user"); } catch {}
+    setUser(null); setCompleted(new Set()); setMastery({});
+    setNameInput(""); setPinInput(""); setScreen("login");
+  };
+
+  const persist = (newCompleted, newMastery) => {
+    if (user) saveUser(user.name, user.pin, { name: user.name, completed: Array.from(newCompleted), mastery: newMastery, lastUpdated: Date.now() });
+  };
+
+  const completeModule = (moduleId) => {
+    const nc = new Set(completed); nc.add(moduleId);
+    setCompleted(nc); persist(nc, mastery);
+    setScreen("hub"); setActiveModule(null);
+  };
+
+  const completeExam = (moduleId, score) => {
+    const nm = { ...mastery, [moduleId]: Math.max(mastery[moduleId] || 0, score) };
+    setMastery(nm);
+    const nc = new Set(completed);
+    if (score >= 80) nc.add(moduleId);
+    setCompleted(nc);
+    persist(nc, nm);
+  };
+
+  const KNOWLEDGE = { concepts: ConceptsLesson, funding: FundingLesson, contracts: ContractsLesson };
+
   const renderModule = () => {
+    if (KNOWLEDGE[activeModule]) {
+      return <KnowledgeModule moduleId={activeModule} LessonComponent={KNOWLEDGE[activeModule]} mastery={mastery[activeModule] || 0} onComplete={(score) => completeExam(activeModule, score)} />;
+    }
     switch (activeModule) {
-      case "concepts": return <ConceptsLesson onComplete={() => completeModule("concepts")} />;
-      case "funding": return <FundingLesson onComplete={() => completeModule("funding")} />;
-      case "contracts": return <ContractsLesson onComplete={() => completeModule("contracts")} />;
       case "metrics": return <MetricsExercise onComplete={() => completeModule("metrics")} />;
       case "eac": return <EACExercise onComplete={() => completeModule("eac")} />;
       case "var": return <VarianceWriteUp onComplete={() => completeModule("var")} />;
@@ -945,6 +1188,10 @@ export default function EVMSModule() {
       default: return null;
     }
   };
+
+  const overallMastery = Object.keys(KNOWLEDGE).length
+    ? Math.round(Object.keys(KNOWLEDGE).reduce((s, k) => s + (mastery[k] || 0), 0) / Object.keys(KNOWLEDGE).length)
+    : 0;
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.font, paddingTop: 80 }}>
@@ -954,20 +1201,62 @@ export default function EVMSModule() {
       `}</style>
 
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "30px 20px", animation: "fadeIn 0.4s ease" }}>
+
+        {/* LOGIN */}
+        {screen === "login" && (
+          <div>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 8 }}>DEFENSE FINANCE TRACK</div>
+              <h1 style={{ fontFamily: T.display, fontSize: 42, letterSpacing: 3, color: T.text, lineHeight: 1, marginBottom: 10 }}>EVMS FOUNDATIONS</h1>
+              <p style={{ fontSize: 14, color: T.textDim, lineHeight: 1.7 }}>
+                A comprehensive program finance training course. Learn how earned value drives funding, contract profitability, EAC forecasting, and the financial reporting behind every major defense program.
+              </p>
+            </div>
+            <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, padding: 24 }}>
+              <div style={{ fontSize: 11, fontFamily: T.mono, color: T.accent, letterSpacing: 1, marginBottom: 14 }}>SIGN IN TO SAVE YOUR PROGRESS ACROSS DEVICES</div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: T.textDim, marginBottom: 6 }}>Your Name</div>
+                <input value={nameInput} onChange={e => setNameInput(e.target.value)} placeholder="e.g. Tarun Patel" maxLength={30}
+                  style={{ width: "100%", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 15, fontFamily: T.font, outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: T.textDim, marginBottom: 6 }}>4-Digit PIN <span style={{ color: T.textMuted }}>(remember this to return to your progress)</span></div>
+                <input value={pinInput} onChange={e => setPinInput(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="• • • •" inputMode="numeric"
+                  style={{ width: "100%", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 18, fontFamily: T.mono, letterSpacing: 6, outline: "none", boxSizing: "border-box" }} />
+              </div>
+              {loginError && <div style={{ fontSize: 12, color: T.red, marginBottom: 12 }}>{loginError}</div>}
+              <button onClick={doLogin} disabled={loading} style={btnStyle(T.accent, true)}>{loading ? "Loading..." : "Enter Course →"}</button>
+              <div style={{ fontSize: 11, color: T.textMuted, marginTop: 12, lineHeight: 1.5 }}>
+                New here? Just pick a name and PIN — we'll create your profile. Returning? Enter the same name + PIN to pick up where you left off on any device.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* HUB */}
         {screen === "hub" && (
           <div>
-            <div style={{ marginBottom: 30 }}>
-              <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 8 }}>DEFENSE FINANCE TRACK</div>
-              <h1 style={{ fontFamily: T.display, fontSize: 42, letterSpacing: 3, color: T.text, marginBottom: 8, lineHeight: 1 }}>EVMS FOUNDATIONS</h1>
-              <p style={{ fontSize: 14, color: T.textDim, lineHeight: 1.7, maxWidth: 500 }}>
-                EVMS from the finance seat. Learn how earned value data drives contract profitability, revenue recognition, EAC forecasting, and the financial reporting behind every major defense program — the way a program finance analyst actually uses it.
-              </p>
-              <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
-                <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, background: T.accentGlow, padding: "4px 12px", borderRadius: 20 }}>
-                  {completed.size}/{MODULES.length} Complete
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 6 }}>DEFENSE FINANCE TRACK</div>
+                <h1 style={{ fontFamily: T.display, fontSize: 36, letterSpacing: 3, color: T.text, lineHeight: 1 }}>EVMS FOUNDATIONS</h1>
+              </div>
+              <button onClick={logout} style={{ background: T.card, border: `1px solid ${T.border}`, color: T.textDim, borderRadius: 8, padding: "6px 12px", fontSize: 11, cursor: "pointer", fontFamily: T.mono, flexShrink: 0 }}>Sign Out</button>
+            </div>
+
+            <div style={{ background: T.card, border: `1px solid ${T.accent}33`, borderRadius: 12, padding: 18, marginBottom: 22, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 11, fontFamily: T.mono, color: T.textMuted, marginBottom: 2 }}>SIGNED IN AS</div>
+                <div style={{ fontFamily: T.display, fontSize: 22, letterSpacing: 1, color: T.text }}>{user?.name}</div>
+              </div>
+              <div style={{ display: "flex", gap: 18, textAlign: "center" }}>
+                <div>
+                  <div style={{ fontFamily: T.display, fontSize: 26, color: T.accent }}>{completed.size}/{MODULES.length}</div>
+                  <div style={{ fontSize: 9, fontFamily: T.mono, color: T.textMuted }}>COMPLETE</div>
                 </div>
-                <div style={{ fontSize: 12, fontFamily: T.mono, color: T.textMuted, background: T.card, padding: "4px 12px", borderRadius: 20 }}>
-                  {MODULES.length} Modules
+                <div>
+                  <div style={{ fontFamily: T.display, fontSize: 26, color: overallMastery >= 80 ? T.green : T.gold }}>{overallMastery}%</div>
+                  <div style={{ fontSize: 9, fontFamily: T.mono, color: T.textMuted }}>MASTERY</div>
                 </div>
               </div>
             </div>
@@ -976,16 +1265,18 @@ export default function EVMSModule() {
               {MODULES.map((m, i) => {
                 const done = completed.has(m.id);
                 const locked = i > 0 && !completed.has(MODULES[i - 1].id) && !done;
+                const mScore = mastery[m.id];
                 return (
                   <button key={m.id} onClick={() => { if (!locked) { setActiveModule(m.id); setScreen("module"); } }}
-                    style={{ background: done ? "rgba(16,185,129,0.06)" : T.card, border: `1px solid ${done ? T.green + "44" : locked ? T.border : T.accent + "22"}`, borderRadius: 12, padding: "18px 18px", cursor: locked ? "not-allowed" : "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 16, transition: "all 0.2s", opacity: locked ? 0.5 : 1 }}>
-                    <div style={{ fontSize: 28, width: 48, height: 48, background: done ? "rgba(16,185,129,0.12)" : T.bg, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    style={{ background: done ? "rgba(16,185,129,0.06)" : T.card, border: `1px solid ${done ? T.green + "44" : locked ? T.border : T.accent + "22"}`, borderRadius: 12, padding: "16px 18px", cursor: locked ? "not-allowed" : "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 16, transition: "all 0.2s", opacity: locked ? 0.5 : 1 }}>
+                    <div style={{ fontSize: 26, width: 46, height: 46, background: done ? "rgba(16,185,129,0.12)" : T.bg, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       {done ? "✓" : locked ? "🔒" : m.icon}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 16, fontFamily: T.display, letterSpacing: 1, color: done ? T.green : T.text }}>{m.title}</span>
                         <span style={{ fontSize: 9, fontFamily: T.mono, background: m.type === "lesson" ? T.accent : m.type === "exercise" ? T.gold : T.orange, color: "#000", borderRadius: 4, padding: "1px 6px", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>{m.type}</span>
+                        {mScore > 0 && <span style={{ fontSize: 9, fontFamily: T.mono, color: mScore >= 80 ? T.green : T.gold, background: T.bg, padding: "1px 6px", borderRadius: 8 }}>{mScore}%</span>}
                       </div>
                       <div style={{ fontSize: 12, color: T.textDim, lineHeight: 1.4 }}>{m.desc}</div>
                     </div>
@@ -997,12 +1288,14 @@ export default function EVMSModule() {
           </div>
         )}
 
+        {/* MODULE */}
         {screen === "module" && activeModule && (
           <div>
             <button onClick={() => { setScreen("hub"); setActiveModule(null); }}
               style={{ background: T.card, border: `1px solid ${T.border}`, color: T.textDim, borderRadius: 8, padding: "8px 14px", fontSize: 12, cursor: "pointer", marginBottom: 20, fontFamily: T.mono }}>
               ← Back to Modules
             </button>
+            <div style={{ fontFamily: T.display, fontSize: 24, letterSpacing: 1, color: T.text, marginBottom: 16 }}>{MODULES.find(m => m.id === activeModule)?.title}</div>
             {renderModule()}
           </div>
         )}
