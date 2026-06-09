@@ -1,6 +1,7 @@
 import { useState } from "react";
 import EVMSModule from "./EVMSModule";
 import FPAModule from "./FPAModule";
+import CapstoneHub from "./CapstoneHub";
 
 const T = {
   bg: "#070710", card: "#0e0e1a", border: "#1e1e32",
@@ -30,6 +31,7 @@ export default function FinanceLab() {
 
   if (track === "defense") return <TrackShell onBack={() => setTrack(null)} accent={T.cyan}><EVMSModule /></TrackShell>;
   if (track === "fpa") return <TrackShell onBack={() => setTrack(null)} accent={T.violet}><FPAModule /></TrackShell>;
+  if (track === "capstone") return <TrackShell onBack={() => setTrack(null)} accent="#f59e0b"><CapstoneHub /></TrackShell>;
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.font, paddingTop: 80 }}>
@@ -60,6 +62,21 @@ export default function FinanceLab() {
               <div style={{ fontFamily: T.display, fontSize: 16, letterSpacing: 2, color: tr.accent }}>ENTER TRACK →</div>
             </button>
           ))}
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <button onClick={() => setTrack("capstone")}
+            style={{ width: "100%", background: "linear-gradient(135deg, #1a1207, #0e0e1a)", border: "1px solid #f59e0b44", borderRadius: 16, padding: 24, cursor: "pointer", textAlign: "left", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 20 }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "#f59e0b"; e.currentTarget.style.transform = "translateY(-3px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "#f59e0b44"; e.currentTarget.style.transform = "translateY(0)"; }}>
+            <div style={{ fontSize: 44, flexShrink: 0 }}>🏆</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, fontFamily: T.mono, color: "#f59e0b", letterSpacing: 2, marginBottom: 6 }}>CAPSTONE PROJECTS</div>
+              <div style={{ fontFamily: T.display, fontSize: 28, letterSpacing: 1.5, color: T.text, marginBottom: 8, lineHeight: 1 }}>APPLY IT ALL — REAL-WORLD CASES</div>
+              <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6 }}>Work a connected scenario end-to-end — a defense program or a company — applying every concept from the tracks. Calculations checked, AI coaching on your analysis, model answers, and a final executive debrief. Run the full case or drill any single stage.</div>
+            </div>
+            <div style={{ fontFamily: T.display, fontSize: 16, letterSpacing: 2, color: "#f59e0b", flexShrink: 0 }}>ENTER →</div>
+          </button>
         </div>
 
         <div style={{ marginTop: 28, textAlign: "center", fontSize: 12, color: T.textMuted, lineHeight: 1.6 }}>
