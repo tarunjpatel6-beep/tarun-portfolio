@@ -81,14 +81,20 @@ const SITE_CONFIG = {
       title: "CAM Co-Pilot",
       tag: "AI / Finance",
       description: "AI-powered variance analysis reporting system serving 900+ engineers across Boeing Defense & Space and Boeing Global Services – Government. Automates government-compliant explanations for VAR trips and performance discrepancies. Built as liaison between BDS AI Engineering & Analytics team and Finance.",
-      tech: ["AI/ML", "Python", "SQL Server", "EVMS"],
+      tech: ["AI/ML", "Leadership", "Strategic Planning", "Project Management", "Prompt Engineering", "Enterprise Strategy", "EVMS"],
       highlight: true,
+    },
+    {
+      title: "Finance Lab & Portfolio Platform",
+      tag: "Product / EdTech",
+      description: "Designed and built this site end-to-end — a personal portfolio paired with an interactive finance training platform. The Finance Lab delivers reference-depth courses in defense program finance (EVMS) and corporate FP&A, each with guided lessons, deep question banks, and applied capstone case studies, alongside a gamified quiz arena. Architected the full stack and authored the curriculum, translating domain expertise in earned value management and financial planning into structured, self-paced learning experiences.",
+      tech: ["React", "Firebase", "Full-Stack Development", "Instructional Design", "Product Design", "FP&A", "EVMS"],
     },
     {
       title: "Corrective Action Plan — DCMA CAR",
       tag: "Financial Governance",
       description: "Supported the development and execution of a comprehensive Corrective Action Plan in response to a DCMA Corrective Action Request, collaborating cross-functionally to address systemic deficiencies and reinforce organization-wide financial governance.",
-      tech: ["EVMS", "Compliance", "Cross-functional Leadership"],
+      tech: ["EVMS", "Compliance", "Cross-functional Leadership", "Consulting"],
     },
     {
       title: "BAPS Swaminarayan Akshardham — Robbinsville, NJ",
@@ -245,12 +251,17 @@ function SectionHeader({ label, num, title }) {
 // ═══════════════════════════════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════════════════════════════
-const PAGES = ["Home", "About", "Portfolio", "Articles", "Arena", "Lab", "Contact"];
+const PAGES = ["Home", "About", "Portfolio", "Articles", "Contact"];
+const TRAINING_PAGES = ["Arena", "Lab"];
+const TRAINING_LABELS = { Arena: "Finance Arena", Lab: "Finance Lab" };
 
 function Nav({ page, setPage }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [trainingOpen, setTrainingOpen] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 40); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
+
+  const isTraining = page === "Arena" || page === "Lab";
 
   const navBtn = (p) => ({
     background: "none", border: "none", color: page === p ? C.copper : C.slate,
@@ -260,18 +271,48 @@ function Nav({ page, setPage }) {
     transition: "all 0.3s", fontWeight: page === p ? 600 : 400,
   });
 
+  const trainingBtn = {
+    background: "none", border: "none", color: isTraining ? C.copper : C.slate,
+    fontFamily: F.body, fontSize: "0.82rem", letterSpacing: "0.08em", textTransform: "uppercase",
+    cursor: "pointer", padding: "4px 0", display: "flex", alignItems: "center", gap: "4px",
+    borderBottom: isTraining ? `2px solid ${C.copper}` : "2px solid transparent",
+    transition: "all 0.3s", fontWeight: isTraining ? 600 : 400,
+  };
+
+  const go = (p) => { setPage(p); window.scrollTo(0, 0); setMenuOpen(false); setTrainingOpen(false); };
+
   return (
     <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: scrolled ? "10px 32px" : "18px 32px", background: scrolled ? "rgba(10,22,40,0.96)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: scrolled ? `1px solid ${C.navyMid}` : "none", display: "flex", justifyContent: "space-between", alignItems: "center", transition: "all 0.35s ease" }}>
-      <div onClick={() => { setPage("Home"); window.scrollTo(0, 0); }} style={{ fontFamily: F.display, fontSize: "1.35rem", color: C.copper, cursor: "pointer", fontWeight: 700 }}>
+      <div onClick={() => go("Home")} style={{ fontFamily: F.display, fontSize: "1.35rem", color: C.copper, cursor: "pointer", fontWeight: 700 }}>
         T<span style={{ color: C.cream }}>P</span>
       </div>
-      <div className="desktop-nav" style={{ display: "flex", gap: "24px" }}>
-        {PAGES.map(p => <button key={p} onClick={() => { setPage(p); window.scrollTo(0, 0); }} style={navBtn(p)}>{p}</button>)}
+      <div className="desktop-nav" style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+        {["Home", "About", "Portfolio", "Articles"].map(p => <button key={p} onClick={() => go(p)} style={navBtn(p)}>{p}</button>)}
+        <div style={{ position: "relative" }} onMouseEnter={() => setTrainingOpen(true)} onMouseLeave={() => setTrainingOpen(false)}>
+          <button onClick={() => setTrainingOpen(o => !o)} style={trainingBtn}>
+            Training<span style={{ fontSize: "0.6rem", transform: trainingOpen ? "rotate(180deg)" : "none", transition: "transform 0.25s" }}>▾</span>
+          </button>
+          {trainingOpen && (
+            <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: "10px", background: "rgba(10,22,40,0.98)", backdropFilter: "blur(12px)", border: `1px solid ${C.navyMid}`, borderRadius: 6, padding: "6px 0", minWidth: "160px", boxShadow: "0 10px 30px rgba(0,0,0,0.4)" }}>
+              {TRAINING_PAGES.map(p => (
+                <button key={p} onClick={() => go(p)} style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 18px", background: page === p ? "rgba(198,125,62,0.1)" : "none", border: "none", color: page === p ? C.copper : C.cream, fontFamily: F.body, fontSize: "0.8rem", letterSpacing: "0.05em", cursor: "pointer", transition: "all 0.2s", whiteSpace: "nowrap" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(198,125,62,0.14)"}
+                  onMouseLeave={e => e.currentTarget.style.background = page === p ? "rgba(198,125,62,0.1)" : "none"}>
+                  {TRAINING_LABELS[p]}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <button onClick={() => go("Contact")} style={navBtn("Contact")}>Contact</button>
       </div>
       <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ display: "none", background: "none", border: "none", color: C.cream, fontSize: "1.5rem", cursor: "pointer" }}>{menuOpen ? "✕" : "☰"}</button>
       {menuOpen && (
         <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "rgba(10,22,40,0.98)", padding: "16px 32px", display: "flex", flexDirection: "column", gap: "12px", borderBottom: `1px solid ${C.navyMid}` }}>
-          {PAGES.map(p => <button key={p} onClick={() => { setPage(p); window.scrollTo(0, 0); setMenuOpen(false); }} style={{ ...navBtn(p), fontSize: "0.95rem", textAlign: "left", padding: "8px 0" }}>{p}</button>)}
+          {["Home", "About", "Portfolio", "Articles"].map(p => <button key={p} onClick={() => go(p)} style={{ ...navBtn(p), fontSize: "0.95rem", textAlign: "left", padding: "8px 0" }}>{p}</button>)}
+          <div style={{ fontFamily: F.body, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: C.copper, paddingTop: "6px", opacity: 0.7 }}>Training</div>
+          {TRAINING_PAGES.map(p => <button key={p} onClick={() => go(p)} style={{ ...navBtn(p), fontSize: "0.95rem", textAlign: "left", padding: "6px 0 6px 14px" }}>{TRAINING_LABELS[p]}</button>)}
+          <button onClick={() => go("Contact")} style={{ ...navBtn("Contact"), fontSize: "0.95rem", textAlign: "left", padding: "8px 0" }}>Contact</button>
         </div>
       )}
     </nav>
