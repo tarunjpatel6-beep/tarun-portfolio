@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { QUESTION_BANKS, getQuestions } from "./evmsQuestions";
+import { LESSON_CONTENT } from "./evmsContent";
 
 // ─── Firebase (reuse existing app if already initialized) ─────────
 const firebaseConfig = {
@@ -102,155 +103,6 @@ const MODULES = [
   { id: "var", title: "Finance Variance Narrative", icon: "📝", desc: "Write variance analysis from the finance analyst's seat — connecting to financial statements", duration: "15 min", type: "scenario" },
   { id: "scenario", title: "Program Finance Review", icon: "🛩️", desc: "Run a financial health review across a portfolio — prioritize, escalate, and brief leadership", duration: "20 min", type: "scenario" },
 ];
-
-// ═══════════════════════════════════════════════════════════════════
-// MODULE 1: Core EVMS Concepts (Interactive Lesson)
-// ═══════════════════════════════════════════════════════════════════
-function ConceptsLesson({ onComplete }) {
-  const [step, setStep] = useState(0);
-  const [quizAnswer, setQuizAnswer] = useState(null);
-
-  const steps = [
-    {
-      title: "Why Finance Owns EVMS",
-      content: "EVMS isn't just a project management tool — it's a financial measurement system. As a program finance analyst, EVMS data is the foundation of your forecast, your variance reporting, and your contract profitability analysis. Every EAC update, every revenue adjustment, every profit booking ties back to the earned value data flowing from the program.",
-      highlight: "Engineering executes the work. Finance measures the financial health. EVMS is the bridge — it translates technical progress into dollars, and those dollars drive your financial statements.",
-      visual: [
-        { label: "FORECAST", sub: "EAC drives your financial outlook", color: T.accent },
-        { label: "REVENUE", sub: "Earned value triggers recognition", color: T.gold },
-        { label: "PROFIT", sub: "CPI trends signal margin risk", color: T.green },
-      ],
-    },
-    {
-      title: "The Three Values You Live By",
-      content: "Every financial review, every variance report, and every EAC update you produce starts with these three numbers. As a finance analyst, you don't just calculate them — you interpret what they mean for the contract's financial position.",
-      terms: [
-        { abbr: "BCWS", full: "Budgeted Cost of Work Scheduled", aka: "Planned Value (PV)", desc: "The budgeted cost baseline — what was planned to be accomplished by now. This is your measuring stick for schedule performance and feeds into your funding profile analysis.", color: T.accent },
-        { abbr: "BCWP", full: "Budgeted Cost of Work Performed", aka: "Earned Value (EV)", desc: "The budgeted value of work actually completed. For finance, this is critical — it drives percentage-of-completion revenue recognition and is the numerator in every performance ratio you track.", color: T.green },
-        { abbr: "ACWP", full: "Actual Cost of Work Performed", aka: "Actual Cost (AC)", desc: "What was actually spent. This hits your cost pools, your actuals reporting, and when compared to BCWP, tells you whether the program is burning budget faster than it's earning value — the core of contract profitability.", color: T.red },
-      ],
-    },
-    {
-      title: "The Finance Analyst's Read",
-      content: "The same data tells different stories depending on who's reading it. Here's how finance interprets the relationships — always connecting back to financial impact:",
-      scenarios: [
-        { condition: "BCWP > BCWS", meaning: "Revenue acceleration potential", detail: "More work completed than planned may allow earlier revenue recognition under POC", icon: "🟢" },
-        { condition: "BCWP < BCWS", meaning: "Revenue and funding risk", detail: "Behind on work means revenue may slip and funding burn rate needs review", icon: "🔴" },
-        { condition: "BCWP > ACWP", meaning: "Favorable contract margin", detail: "Earning value faster than spending — profit margin is expanding", icon: "🟢" },
-        { condition: "BCWP < ACWP", meaning: "Margin erosion", detail: "Spending more than the value earned — contract profitability is at risk. EAC adjustment likely needed.", icon: "🔴" },
-      ],
-    },
-    {
-      title: "Quick Check",
-      quiz: true,
-      question: "A control account has BCWS = $500K, BCWP = $420K, ACWP = $480K. As the finance analyst, what do you flag?",
-      options: [
-        "No action needed — variances are within normal range",
-        "Schedule slip only — cost is fine since ACWP < BCWS",
-        "Margin compression — the program is behind schedule AND over budget, likely triggering an EAC increase and profit adjustment",
-        "Revenue opportunity — accelerate recognition to close the gap",
-      ],
-      correct: 2,
-      explanation: "BCWP ($420K) < BCWS ($500K) → behind schedule, impacting revenue recognition timing. BCWP ($420K) < ACWP ($480K) → over budget with a CPI of 0.875, signaling margin erosion. As the finance analyst, this combination likely requires an EAC increase, a profit adjustment, and a flag to program management. This is the kind of data that flows directly into your financial forecast and contract profitability review.",
-    },
-  ];
-
-  const s = steps[step];
-  const isLast = step === steps.length - 1;
-
-  return (
-    <div>
-      <ProgressBar current={step + 1} total={steps.length} />
-      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24, marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontFamily: T.mono, color: T.accent, letterSpacing: 1, marginBottom: 8 }}>LESSON {step + 1} OF {steps.length}</div>
-        <h2 style={{ fontFamily: T.display, fontSize: 28, letterSpacing: 2, color: T.text, marginBottom: 16 }}>{s.title}</h2>
-        <p style={{ fontSize: 14, color: T.textDim, lineHeight: 1.75, marginBottom: 16 }}>{s.content}</p>
-
-        {s.highlight && (
-          <div style={{ background: T.accentGlow, border: `1px solid ${T.accent}33`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-            <p style={{ fontSize: 14, color: T.accent, lineHeight: 1.6, fontWeight: 500 }}>{s.highlight}</p>
-          </div>
-        )}
-
-        {s.visual && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
-            {s.visual.map(v => (
-              <div key={v.label} style={{ background: T.bg, borderRadius: 8, padding: 16, textAlign: "center", border: `1px solid ${v.color}33` }}>
-                <div style={{ fontFamily: T.display, fontSize: 22, color: v.color, letterSpacing: 2 }}>{v.label}</div>
-                <div style={{ fontSize: 12, color: T.textDim, marginTop: 6 }}>{v.sub}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {s.terms && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-            {s.terms.map(t => (
-              <div key={t.abbr} style={{ background: T.bg, borderRadius: 10, padding: 16, borderLeft: `4px solid ${t.color}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ fontFamily: T.display, fontSize: 24, color: t.color, letterSpacing: 2 }}>{t.abbr}</div>
-                  <div style={{ fontSize: 10, fontFamily: T.mono, color: T.textMuted, background: T.card, padding: "3px 10px", borderRadius: 12 }}>{t.aka}</div>
-                </div>
-                <div style={{ fontSize: 13, color: T.text, fontWeight: 600, marginBottom: 4 }}>{t.full}</div>
-                <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6 }}>{t.desc}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {s.scenarios && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-            {s.scenarios.map((sc, i) => (
-              <div key={i} style={{ background: T.bg, borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, fontFamily: T.mono, color: T.text, marginBottom: 6 }}>{sc.icon} {sc.condition}</div>
-                <div style={{ fontSize: 14, color: T.text, fontWeight: 600, marginBottom: 4 }}>{sc.meaning}</div>
-                <div style={{ fontSize: 12, color: T.textDim }}>{sc.detail}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {s.quiz && (
-          <div>
-            <div style={{ background: T.bg, borderRadius: 10, padding: 16, marginBottom: 14, border: `1px dashed ${T.accent}44` }}>
-              <div style={{ fontSize: 15, color: T.text, lineHeight: 1.6 }}>{s.question}</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {s.options.map((opt, i) => {
-                let bg = "transparent", bdr = T.border, col = T.textDim;
-                if (quizAnswer !== null) {
-                  if (i === s.correct) { bg = "rgba(16,185,129,0.12)"; bdr = T.green; col = T.green; }
-                  else if (i === quizAnswer) { bg = "rgba(239,68,68,0.12)"; bdr = T.red; col = T.red; }
-                }
-                return (
-                  <button key={i} onClick={() => quizAnswer === null && setQuizAnswer(i)}
-                    style={{ background: bg, border: `1px solid ${bdr}`, color: col, borderRadius: 8, padding: "12px 16px", textAlign: "left", fontSize: 13, cursor: quizAnswer !== null ? "default" : "pointer", lineHeight: 1.5, transition: "all 0.2s" }}>
-                    <span style={{ fontFamily: T.mono, marginRight: 8, opacity: 0.5 }}>{String.fromCharCode(65 + i)}.</span>{opt}
-                  </button>
-                );
-              })}
-            </div>
-            {quizAnswer !== null && (
-              <div style={{ background: quizAnswer === s.correct ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${quizAnswer === s.correct ? T.green : T.red}44`, borderRadius: 8, padding: 14, marginTop: 12 }}>
-                <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.65 }}>{s.explanation}</div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div style={{ display: "flex", gap: 10, justifyContent: "space-between" }}>
-        {step > 0 && <button onClick={() => { setStep(s => s - 1); setQuizAnswer(null); }} style={btnStyle(T.textMuted)}>← Back</button>}
-        <div style={{ flex: 1 }} />
-        {s.quiz ? (
-          quizAnswer !== null && <button onClick={() => onComplete()} style={btnStyle(T.accent, true)}>Complete Module ✓</button>
-        ) : (
-          <button onClick={() => setStep(s => s + 1)} style={btnStyle(T.accent, true)}>Continue →</button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // MODULE 2: Performance Metrics Calculator
@@ -702,197 +554,6 @@ function CAMSimulation({ onComplete }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// MODULE: Funding, Budget & Cost (Color of Money)
-// ═══════════════════════════════════════════════════════════════════
-function FundingLesson({ onComplete }) {
-  const [step, setStep] = useState(0);
-  const [quizAnswer, setQuizAnswer] = useState(null);
-
-  const steps = [
-    {
-      title: "Three Words People Confuse",
-      content: "One of the most common mistakes new analysts make is treating budget, funding, and cost as the same thing. They're not — and on a defense program, mixing them up can mean you're 'on budget' but still about to run a program dry.",
-      terms: [
-        { abbr: "BUDGET", full: "Performance Measurement Baseline", aka: "What work should cost", desc: "The time-phased plan of what the scope of work is budgeted to cost. This is your EVMS baseline (the sum of all BCWS). It measures performance — am I earning value efficiently?", color: T.accent },
-        { abbr: "FUNDING", full: "Authorized & Appropriated Dollars", aka: "Money you're allowed to spend", desc: "The dollars actually authorized on the contract. You can only spend what's been funded — regardless of budget. A fully-funded program and an incrementally-funded program are managed very differently.", color: T.gold },
-        { abbr: "COST", full: "Actual Cost Incurred (ACWP)", aka: "What you've actually spent", desc: "The real dollars expended doing the work. Compared against budget it tells you efficiency (CPI); compared against funding it tells you whether you're about to hit a funding wall.", color: T.red },
-      ],
-    },
-    {
-      title: "Color of Money",
-      content: "In defense, not all dollars are equal. Appropriated funds come in different 'colors,' each with its own rules and expiration. Spending the wrong color on the wrong work is an Anti-Deficiency Act violation — a serious compliance issue finance is responsible for preventing.",
-      scenarios: [
-        { condition: "RDT&E (3600)", meaning: "Research, Development, Test & Eval", detail: "Funds development work. 2-year availability. Used in EMD phases.", icon: "🔬" },
-        { condition: "Procurement (3010)", meaning: "Production & Procurement", detail: "Funds buying production units. 3-year availability.", icon: "🏭" },
-        { condition: "O&M (3400)", meaning: "Operations & Maintenance", detail: "Funds sustainment, services, day-to-day ops. 1-year availability.", icon: "🔧" },
-        { condition: "Expired vs. Cancelled", meaning: "Time limits matter", detail: "Funds that expire can still pay prior obligations; cancelled funds are gone entirely.", icon: "⏳" },
-      ],
-    },
-    {
-      title: "The Funding Pipeline",
-      content: "Money flows through stages before it becomes a cost. As a finance analyst, you track every stage — because a gap between funding and obligation, or obligation and expenditure, is where programs get into trouble.",
-      terms: [
-        { abbr: "AUTHORIZED", full: "Contract Ceiling / NTE", aka: "Maximum allowed", desc: "The not-to-exceed value of the contract — the legal ceiling on what can be spent.", color: T.accent },
-        { abbr: "OBLIGATED", full: "Committed on Contract", aka: "Funds put on contract", desc: "Funding actually placed on the contract via mods. On incrementally-funded contracts, this is released in increments — and you manage to it carefully.", color: T.gold },
-        { abbr: "EXPENDED", full: "Cost Incurred to Date", aka: "Actually spent", desc: "The cumulative ACWP. When expenditures approach obligations, you need more funding on contract — or work stops.", color: T.red },
-      ],
-    },
-    {
-      title: "Quick Check",
-      quiz: true,
-      question: "Your program has a CPI of 1.05 (under budget) but you've expended $48M against $50M of obligated funding, with 6 months of work remaining. What's the finance concern?",
-      options: [
-        "No concern — you're under budget, so you're in great shape",
-        "Cost efficiency is good, but you're about to hit a funding wall — only $2M obligated remains for 6 months of work. You need a funding action regardless of strong CPI.",
-        "You should slow spending to improve CPI further",
-        "The CPI is wrong — it can't be above 1.0 if you're nearly out of funding",
-      ],
-      correct: 1,
-      explanation: "This is the exact trap. CPI measures efficiency against BUDGET — and 1.05 is great. But funding is a separate constraint. With only $2M of obligated funding left and 6 months to go, the program will stop work unless more funding is placed on contract. A strong CPI doesn't save you from a funding shortfall. This is why finance tracks budget, funding, and cost as three distinct things.",
-    },
-  ];
-
-  return <LessonRenderer steps={steps} step={step} setStep={setStep} quizAnswer={quizAnswer} setQuizAnswer={setQuizAnswer} onComplete={onComplete} label="FUNDING & COST" />;
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// MODULE: Contract Types & Fee
-// ═══════════════════════════════════════════════════════════════════
-function ContractsLesson({ onComplete }) {
-  const [step, setStep] = useState(0);
-  const [quizAnswer, setQuizAnswer] = useState(null);
-
-  const steps = [
-    {
-      title: "Why Contract Type Drives Everything",
-      content: "Before you analyze a single dollar, you need to know the contract type. It determines who carries the risk, how profit is earned, and how you forecast. The same cost overrun can be a disaster on one contract type and a non-event on another.",
-      highlight: "Risk lives on a spectrum: on a Firm-Fixed-Price contract, the contractor owns all the cost risk. On a Cost-Plus contract, the government does. Where you sit on that spectrum changes how you manage the program's finances entirely.",
-    },
-    {
-      title: "The Main Contract Types",
-      content: "Each type allocates cost risk differently and pays profit differently. These four cover most of what you'll see in defense.",
-      terms: [
-        { abbr: "FFP", full: "Firm-Fixed-Price", aka: "Contractor owns all risk", desc: "One price, period. If costs run over, the contractor eats it — and an overrun directly erodes profit. If costs come in under, the contractor keeps the difference. CPI directly equals margin movement. Highest risk, highest reward.", color: T.red },
-        { abbr: "CPFF", full: "Cost-Plus-Fixed-Fee", aka: "Government owns cost risk", desc: "Contractor is reimbursed for allowable costs plus a fixed fee dollar amount. The fee doesn't change with cost — so a cost overrun shrinks your fee percentage but not the fee dollars. Lower risk.", color: T.green },
-        { abbr: "CPIF", full: "Cost-Plus-Incentive-Fee", aka: "Shared risk via share ratio", desc: "Reimbursed cost plus a fee that flexes with performance against a target cost, using a share ratio (e.g., 80/20). Beat target cost and you share the savings; overrun and you share the pain — up to a ceiling.", color: T.gold },
-        { abbr: "T&M", full: "Time-and-Materials", aka: "Hourly + materials", desc: "Paid fixed hourly labor rates plus materials at cost. Common for services and sustainment. Risk sits mostly with the government, but labor rate management is critical for the contractor.", color: T.accent },
-      ],
-    },
-    {
-      title: "How Fee Actually Gets Earned",
-      content: "Profit isn't automatic — especially on incentive and award-fee contracts. The fee you book is a finance judgment, and it moves with performance.",
-      scenarios: [
-        { condition: "Fixed Fee", meaning: "Set dollar amount", detail: "Doesn't move with cost. Booked as a percentage of completion.", icon: "💵" },
-        { condition: "Incentive Fee", meaning: "Share-ratio driven", detail: "Moves with cost performance against target via the share line.", icon: "📈" },
-        { condition: "Award Fee", meaning: "Subjective evaluation", detail: "Earned via periodic government scoring of performance. Finance estimates expected award fee %.", icon: "🏆" },
-        { condition: "Fee on FFP", meaning: "Embedded in price", detail: "Margin = price minus cost. Every cost dollar saved is a profit dollar earned.", icon: "🎯" },
-      ],
-    },
-    {
-      title: "Quick Check",
-      quiz: true,
-      question: "A program is forecasting a $5M cost overrun. On which contract type does this overrun most directly destroy profit dollar-for-dollar?",
-      options: [
-        "CPFF — because the fee is fixed",
-        "FFP — because the contractor owns all cost risk, so every overrun dollar comes straight out of margin",
-        "CPIF — because the government shares the cost",
-        "T&M — because materials are billed at cost",
-      ],
-      correct: 1,
-      explanation: "On a Firm-Fixed-Price contract, the price is locked. Margin = Price − Cost. So a $5M overrun reduces profit by the full $5M — dollar-for-dollar. On CPFF the fee is fixed (overrun doesn't touch fee dollars), on CPIF the pain is shared via the share ratio, and on T&M materials pass through at cost. This is exactly why a finance analyst's response to a variance depends entirely on contract type — the same overrun is a margin emergency on FFP and a manageable event on CPFF.",
-    },
-  ];
-
-  return <LessonRenderer steps={steps} step={step} setStep={setStep} quizAnswer={quizAnswer} setQuizAnswer={setQuizAnswer} onComplete={onComplete} label="CONTRACT TYPES & FEE" />;
-}
-
-// ─── Reusable Lesson Renderer ─────────────────────────────────────
-function LessonRenderer({ steps, step, setStep, quizAnswer, setQuizAnswer, onComplete, label }) {
-  const s = steps[step];
-  return (
-    <div>
-      <ProgressBar current={step + 1} total={steps.length} />
-      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24, marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontFamily: T.mono, color: T.accent, letterSpacing: 1, marginBottom: 8 }}>{label} — {step + 1}/{steps.length}</div>
-        <h2 style={{ fontFamily: T.display, fontSize: 28, letterSpacing: 2, color: T.text, marginBottom: 16 }}>{s.title}</h2>
-        <p style={{ fontSize: 14, color: T.textDim, lineHeight: 1.75, marginBottom: 16 }}>{s.content}</p>
-
-        {s.highlight && (
-          <div style={{ background: T.accentGlow, border: `1px solid ${T.accent}33`, borderRadius: 8, padding: 16, marginBottom: 16 }}>
-            <p style={{ fontSize: 14, color: T.accent, lineHeight: 1.6, fontWeight: 500 }}>{s.highlight}</p>
-          </div>
-        )}
-
-        {s.terms && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-            {s.terms.map(t => (
-              <div key={t.abbr} style={{ background: T.bg, borderRadius: 10, padding: 16, borderLeft: `4px solid ${t.color}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ fontFamily: T.display, fontSize: 22, color: t.color, letterSpacing: 2 }}>{t.abbr}</div>
-                  <div style={{ fontSize: 10, fontFamily: T.mono, color: T.textMuted, background: T.card, padding: "3px 10px", borderRadius: 12 }}>{t.aka}</div>
-                </div>
-                <div style={{ fontSize: 13, color: T.text, fontWeight: 600, marginBottom: 4 }}>{t.full}</div>
-                <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6 }}>{t.desc}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {s.scenarios && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-            {s.scenarios.map((sc, i) => (
-              <div key={i} style={{ background: T.bg, borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, fontFamily: T.mono, color: T.text, marginBottom: 6 }}>{sc.icon} {sc.condition}</div>
-                <div style={{ fontSize: 14, color: T.text, fontWeight: 600, marginBottom: 4 }}>{sc.meaning}</div>
-                <div style={{ fontSize: 12, color: T.textDim, lineHeight: 1.5 }}>{sc.detail}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {s.quiz && (
-          <div>
-            <div style={{ background: T.bg, borderRadius: 10, padding: 16, marginBottom: 14, border: `1px dashed ${T.accent}44` }}>
-              <div style={{ fontSize: 15, color: T.text, lineHeight: 1.6 }}>{s.question}</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {s.options.map((opt, i) => {
-                let bg = "transparent", bdr = T.border, col = T.textDim;
-                if (quizAnswer !== null) {
-                  if (i === s.correct) { bg = "rgba(16,185,129,0.12)"; bdr = T.green; col = T.green; }
-                  else if (i === quizAnswer) { bg = "rgba(239,68,68,0.12)"; bdr = T.red; col = T.red; }
-                }
-                return (
-                  <button key={i} onClick={() => quizAnswer === null && setQuizAnswer(i)}
-                    style={{ background: bg, border: `1px solid ${bdr}`, color: col, borderRadius: 8, padding: "12px 16px", textAlign: "left", fontSize: 13, cursor: quizAnswer !== null ? "default" : "pointer", lineHeight: 1.5, transition: "all 0.2s" }}>
-                    <span style={{ fontFamily: T.mono, marginRight: 8, opacity: 0.5 }}>{String.fromCharCode(65 + i)}.</span>{opt}
-                  </button>
-                );
-              })}
-            </div>
-            {quizAnswer !== null && (
-              <div style={{ background: quizAnswer === s.correct ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${quizAnswer === s.correct ? T.green : T.red}44`, borderRadius: 8, padding: 14, marginTop: 12 }}>
-                <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.65 }}>{s.explanation}</div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div style={{ display: "flex", gap: 10, justifyContent: "space-between" }}>
-        {step > 0 && <button onClick={() => { setStep(step - 1); setQuizAnswer(null); }} style={btnStyle(T.textMuted)}>← Back</button>}
-        <div style={{ flex: 1 }} />
-        {s.quiz ? (
-          quizAnswer !== null && <button onClick={onComplete} style={btnStyle(T.accent, true)}>Complete Module ✓</button>
-        ) : (
-          <button onClick={() => setStep(step + 1)} style={btnStyle(T.accent, true)}>Continue →</button>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ─── Shared Components ────────────────────────────────────────────
 const ProgressBar = ({ current, total }) => (
   <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 20 }}>
@@ -909,6 +570,118 @@ const btnStyle = (color, primary = false) => ({
   borderRadius: 10, padding: "14px", fontFamily: T.display, fontSize: 17,
   letterSpacing: 2, cursor: "pointer", transition: "all 0.2s",
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// RICH LESSON — comprehensive reference content (scrollable)
+// ═══════════════════════════════════════════════════════════════════
+const calloutStyle = {
+  reg: { bg: "rgba(0,194,255,0.07)", border: "#00c2ff44", label: "📋 REGULATORY", labelColor: T.accent },
+  warning: { bg: "rgba(239,68,68,0.07)", border: "#ef444444", label: "⚠️ WATCH OUT", labelColor: T.red },
+  insight: { bg: "rgba(245,158,11,0.07)", border: "#f59e0b44", label: "💡 FINANCE INSIGHT", labelColor: T.gold },
+};
+
+function ContentBlock({ block }) {
+  switch (block.type) {
+    case "heading":
+      return <h3 style={{ fontFamily: T.display, fontSize: 24, letterSpacing: 1.5, color: T.text, marginTop: 28, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${T.border}` }}>{block.text}</h3>;
+    case "prose":
+      return <p style={{ fontSize: 14.5, color: T.textDim, lineHeight: 1.8, marginBottom: 14 }}>{block.text}</p>;
+    case "terms":
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+          {block.items.map(t => (
+            <div key={t.abbr} style={{ background: T.card, borderRadius: 10, padding: 15, borderLeft: `3px solid ${T.accent}` }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
+                <span style={{ fontFamily: T.display, fontSize: 18, color: T.accent, letterSpacing: 1 }}>{t.abbr}</span>
+                <span style={{ fontSize: 12, color: T.text, fontWeight: 600 }}>{t.full}</span>
+              </div>
+              <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.65 }}>{t.desc}</div>
+            </div>
+          ))}
+        </div>
+      );
+    case "callout": {
+      const c = calloutStyle[block.variant] || calloutStyle.insight;
+      return (
+        <div style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 10, fontFamily: T.mono, color: c.labelColor, letterSpacing: 1, marginBottom: 6 }}>{c.label}</div>
+          {block.title && <div style={{ fontSize: 14, color: T.text, fontWeight: 600, marginBottom: 6 }}>{block.title}</div>}
+          <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.7 }}>{block.body}</div>
+        </div>
+      );
+    }
+    case "table":
+      return (
+        <div style={{ background: T.card, borderRadius: 10, overflow: "hidden", marginBottom: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${block.headers.length}, 1fr)`, gap: 0, background: T.bg }}>
+            {block.headers.map((h, i) => (
+              <div key={i} style={{ fontSize: 10, fontFamily: T.mono, color: T.accent, letterSpacing: 0.5, padding: "10px 12px", fontWeight: 700 }}>{h}</div>
+            ))}
+          </div>
+          {block.rows.map((row, ri) => (
+            <div key={ri} style={{ display: "grid", gridTemplateColumns: `repeat(${block.headers.length}, 1fr)`, gap: 0, borderTop: `1px solid ${T.border}` }}>
+              {row.map((cell, ci) => (
+                <div key={ci} style={{ fontSize: 12, color: ci === 0 ? T.text : T.textDim, padding: "10px 12px", lineHeight: 1.5, fontWeight: ci === 0 ? 600 : 400 }}>{cell}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    case "example":
+      return (
+        <div style={{ background: "rgba(16,185,129,0.05)", border: `1px solid ${T.green}33`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 10, fontFamily: T.mono, color: T.green, letterSpacing: 1, marginBottom: 8 }}>🧮 WORKED EXAMPLE</div>
+          {block.title && <div style={{ fontSize: 14, color: T.text, fontWeight: 600, marginBottom: 8 }}>{block.title}</div>}
+          {block.intro && <div style={{ fontSize: 13, color: T.textDim, lineHeight: 1.65, marginBottom: 10 }}>{block.intro}</div>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
+            {block.steps.map((step, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ fontFamily: T.mono, fontSize: 11, color: T.green, background: "rgba(16,185,129,0.12)", borderRadius: 4, padding: "2px 7px", flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                <span style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6, fontFamily: T.mono }}>{step}</span>
+              </div>
+            ))}
+          </div>
+          {block.result && (
+            <div style={{ background: T.bg, borderRadius: 8, padding: 12, borderLeft: `3px solid ${T.green}` }}>
+              <div style={{ fontSize: 13, color: T.text, lineHeight: 1.65 }}>{block.result}</div>
+            </div>
+          )}
+        </div>
+      );
+    case "list":
+      return (
+        <ul style={{ marginBottom: 16, paddingLeft: 0, listStyle: "none" }}>
+          {block.items.map((item, i) => (
+            <li key={i} style={{ fontSize: 14, color: T.textDim, lineHeight: 1.7, marginBottom: 8, paddingLeft: 20, position: "relative" }}>
+              <span style={{ position: "absolute", left: 0, color: T.accent }}>▸</span>{item}
+            </li>
+          ))}
+        </ul>
+      );
+    default:
+      return null;
+  }
+}
+
+function RichLesson({ moduleId, onComplete }) {
+  const content = LESSON_CONTENT[moduleId];
+  if (!content) return null;
+  return (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontFamily: T.display, fontSize: 30, letterSpacing: 2, color: T.text, marginBottom: 6 }}>{content.title}</h2>
+        <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.6, fontStyle: "italic" }}>{content.subtitle}</p>
+      </div>
+      <div style={{ background: T.bg, borderRadius: 12 }}>
+        {content.blocks.map((block, i) => <ContentBlock key={i} block={block} />)}
+      </div>
+      <div style={{ marginTop: 24, padding: 18, background: T.card, border: `1px solid ${T.accent}33`, borderRadius: 12, textAlign: "center" }}>
+        <div style={{ fontSize: 13, color: T.textDim, marginBottom: 12, lineHeight: 1.6 }}>Finished reading? Head to <span style={{ color: T.green }}>Practice</span> to drill the question bank, then take the <span style={{ color: T.gold }}>Final Exam</span> to earn mastery.</div>
+        <button onClick={onComplete} style={btnStyle(T.accent, true)}>← Back to Module Menu</button>
+      </div>
+    </div>
+  );
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // PRACTICE MODE — freely practice the full question bank, instant feedback
@@ -1056,11 +829,11 @@ function FinalExam({ moduleId, onComplete, onBack }) {
 // ═══════════════════════════════════════════════════════════════════
 // KNOWLEDGE MODULE WRAPPER — Learn / Practice / Exam sub-navigation
 // ═══════════════════════════════════════════════════════════════════
-function KnowledgeModule({ moduleId, LessonComponent, mastery, onComplete }) {
+function KnowledgeModule({ moduleId, mastery, onComplete }) {
   const [mode, setMode] = useState("menu");
   const bankSize = (QUESTION_BANKS[moduleId] || []).length;
 
-  if (mode === "learn") return <LessonComponent onComplete={() => setMode("menu")} />;
+  if (mode === "learn") return <RichLesson moduleId={moduleId} onComplete={() => setMode("menu")} />;
   if (mode === "practice") return <PracticeMode moduleId={moduleId} onBack={() => setMode("menu")} />;
   if (mode === "exam") return <FinalExam moduleId={moduleId} onComplete={(score) => { onComplete(score); setMode("menu"); }} onBack={() => setMode("menu")} />;
 
@@ -1174,11 +947,11 @@ export default function EVMSModule() {
     persist(nc, nm);
   };
 
-  const KNOWLEDGE = { concepts: ConceptsLesson, funding: FundingLesson, contracts: ContractsLesson };
+  const KNOWLEDGE = { concepts: true, funding: true, contracts: true };
 
   const renderModule = () => {
     if (KNOWLEDGE[activeModule]) {
-      return <KnowledgeModule moduleId={activeModule} LessonComponent={KNOWLEDGE[activeModule]} mastery={mastery[activeModule] || 0} onComplete={(score) => completeExam(activeModule, score)} />;
+      return <KnowledgeModule moduleId={activeModule} mastery={mastery[activeModule] || 0} onComplete={(score) => completeExam(activeModule, score)} />;
     }
     switch (activeModule) {
       case "metrics": return <MetricsExercise onComplete={() => completeModule("metrics")} />;
