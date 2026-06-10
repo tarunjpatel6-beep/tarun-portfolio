@@ -293,14 +293,16 @@ function Nav({ page, setPage }) {
             Training<span style={{ fontSize: "0.6rem", transform: trainingOpen ? "rotate(180deg)" : "none", transition: "transform 0.25s" }}>▾</span>
           </button>
           {trainingOpen && (
-            <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: "10px", background: "rgba(10,22,40,0.98)", backdropFilter: "blur(12px)", border: `1px solid ${C.navyMid}`, borderRadius: 6, padding: "6px 0", minWidth: "160px", boxShadow: "0 10px 30px rgba(0,0,0,0.4)" }}>
-              {TRAINING_PAGES.map(p => (
-                <button key={p} onClick={() => go(p)} style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 18px", background: page === p ? "rgba(198,125,62,0.1)" : "none", border: "none", color: page === p ? C.copper : C.cream, fontFamily: F.body, fontSize: "0.8rem", letterSpacing: "0.05em", cursor: "pointer", transition: "all 0.2s", whiteSpace: "nowrap" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(198,125,62,0.14)"}
-                  onMouseLeave={e => e.currentTarget.style.background = page === p ? "rgba(198,125,62,0.1)" : "none"}>
-                  {TRAINING_LABELS[p]}
-                </button>
-              ))}
+            <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", paddingTop: "10px", zIndex: 101 }}>
+              <div style={{ background: "rgba(10,22,40,0.98)", backdropFilter: "blur(12px)", border: `1px solid ${C.navyMid}`, borderRadius: 6, padding: "6px 0", minWidth: "160px", boxShadow: "0 10px 30px rgba(0,0,0,0.4)" }}>
+                {TRAINING_PAGES.map(p => (
+                  <button key={p} onClick={() => go(p)} style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 18px", background: page === p ? "rgba(198,125,62,0.1)" : "none", border: "none", color: page === p ? C.copper : C.cream, fontFamily: F.body, fontSize: "0.8rem", letterSpacing: "0.05em", cursor: "pointer", transition: "all 0.2s", whiteSpace: "nowrap" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(198,125,62,0.14)"}
+                    onMouseLeave={e => e.currentTarget.style.background = page === p ? "rgba(198,125,62,0.1)" : "none"}>
+                    {TRAINING_LABELS[p]}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
