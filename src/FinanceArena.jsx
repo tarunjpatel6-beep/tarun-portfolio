@@ -20,6 +20,12 @@ const db = getFirestore(app);
 // ─── Firebase Storage ─────────────────────────────────────────────
 const LB_KEY = "finance-arena-leaderboard";
 
+// Admin: change this to your own secret. Unlock by clicking the
+// "N PLAYERS RANKED" text 5 times on the leaderboard, then entering this.
+// NOTE: this is light obscurity, not real security — anyone inspecting the
+// site's code could find it. It only hides the delete UI from casual visitors.
+const ADMIN_PASS = "tp-arena-admin-2026";
+
 const safeGet = async () => {
   try {
     const snap = await getDoc(doc(db, "arena", LB_KEY));
@@ -623,12 +629,33 @@ export default function FinanceArena() {
   const [activeGame, setActiveGame] = useState(null);
   const [sessionXP, setSessionXP] = useState(0);
   const [notif, setNotif] = useState(null);
+  const [admin, setAdmin] = useState(false);
+  const [titleClicks, setTitleClicks] = useState(0);
 
   useEffect(() => { loadLeaderboard(); }, []);
 
   const loadLeaderboard = async () => {
     const d = await safeGet();
     if (d) setLeaderboard(d);
+  };
+
+  const tapTitle = () => {
+    const n = titleClicks + 1;
+    setTitleClicks(n);
+    if (n >= 5) {
+      setTitleClicks(0);
+      const entry = window.prompt("Admin passphrase:");
+      if (entry === ADMIN_PASS) { setAdmin(true); showNotif("Admin mode on — delete buttons enabled.", "#10b981"); }
+      else if (entry !== null) { showNotif("Incorrect passphrase.", "#ef4444"); }
+    }
+  };
+
+  const removePlayer = async (name) => {
+    if (!window.confirm(`Remove "${name}" from the leaderboard? This can't be undone.`)) return;
+    const nb = leaderboard.filter(p => p.name !== name);
+    setLeaderboard(nb);
+    await safeSet(nb);
+    showNotif(`Removed "${name}".`, "#10b981");
   };
 
   const showNotif = (msg, color = "#f97316") => {
@@ -832,7 +859,7 @@ export default function FinanceArena() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
             <div>
               <div style={{ fontSize: 28, fontFamily: "'Bebas Neue',cursive", letterSpacing: 3 }}>LEADERBOARD</div>
-              <div style={{ fontSize: 10, color: "#6b7280", fontFamily: "monospace" }}>{leaderboard.length} PLAYERS RANKED</div>
+              <div onClick={tapTitle} style={{ fontSize: 10, color: admin ? "#10b981" : "#6b7280", fontFamily: "monospace", cursor: "default", userSelect: "none" }}>{leaderboard.length} PLAYERS RANKED{admin ? " · ADMIN" : ""}</div>
             </div>
             <button onClick={() => setScreen(player ? "hub" : "splash")} style={{ background: "#161b22", border: "1px solid #374151", color: "#d1d5db", borderRadius: 8, padding: "8px 13px", fontSize: 12, cursor: "pointer" }}>
               {player ? "← HUB" : "← BACK"}
@@ -869,6 +896,12 @@ export default function FinanceArena() {
                     <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 18, color: i === 0 ? "#f59e0b" : i === 1 ? "#9ca3af" : i === 2 ? "#cd7f32" : "#6b7280" }}>
                       {p.xp.toLocaleString()}
                     </div>
+                    {admin && (
+                      <button onClick={() => removePlayer(p.name)} title="Remove entry"
+                        style={{ background: "transparent", border: "1px solid #ef444455", color: "#ef4444", borderRadius: 6, padding: "4px 9px", fontSize: 12, cursor: "pointer", flexShrink: 0 }}>
+                        ✕
+                      </button>
+                    )}
                   </div>
                 );
               })}

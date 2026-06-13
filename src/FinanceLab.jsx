@@ -1,11 +1,12 @@
 import { useState } from "react";
 import EVMSModule from "./EVMSModule";
 import FPAModule from "./FPAModule";
+import BCAModule from "./BCAModule";
 import CapstoneHub from "./CapstoneHub";
 
 const T = {
   bg: "#070710", card: "#0e0e1a", border: "#1e1e32",
-  cyan: "#00c2ff", violet: "#8b5cf6", text: "#e8e6f0", textDim: "#6b6b85", textMuted: "#4a4a60",
+  cyan: "#00c2ff", violet: "#8b5cf6", blue: "#3b82f6", text: "#e8e6f0", textDim: "#6b6b85", textMuted: "#4a4a60",
   font: "'DM Sans',sans-serif", mono: "'JetBrains Mono','SF Mono',monospace", display: "'Bebas Neue',cursive",
 };
 
@@ -24,6 +25,13 @@ const TRACKS = [
     desc: "Corporate financial planning & analysis, industry-agnostic. The three statements, budgeting and forecasting, variance analysis, working capital and cash flow, and valuation and decision analysis.",
     tags: ["5 Modules", "Flagship Depth", "Practice + Exams"],
   },
+  {
+    id: "bca", accent: T.blue, icon: "✈️",
+    eyebrow: "BCA CONTRACTS TRACK",
+    title: "AIRCRAFT CONTRACTS",
+    desc: "Boeing Commercial Airplanes & aerospace airline contracts, ground-up. The market and duopoly, sales campaigns and deal strategy, the Purchase Agreement, pricing and escalation, negotiation, contractual commitments and financing, and revenue recognition at delivery.",
+    tags: ["7 Modules", "Deal Strategy + ASC 606", "Practice + Exams"],
+  },
 ];
 
 export default function FinanceLab() {
@@ -31,6 +39,7 @@ export default function FinanceLab() {
 
   if (track === "defense") return <TrackShell onBack={() => setTrack(null)} accent={T.cyan}><EVMSModule /></TrackShell>;
   if (track === "fpa") return <TrackShell onBack={() => setTrack(null)} accent={T.violet}><FPAModule /></TrackShell>;
+  if (track === "bca") return <TrackShell onBack={() => setTrack(null)} accent={T.blue}><BCAModule /></TrackShell>;
   if (track === "capstone") return <TrackShell onBack={() => setTrack(null)} accent="#f59e0b"><CapstoneHub /></TrackShell>;
 
   return (
