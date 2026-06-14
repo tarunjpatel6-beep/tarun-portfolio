@@ -2,6 +2,7 @@ import { useState } from "react";
 import CapstoneRunner from "./CapstoneRunner";
 import { EVMS_CAPSTONES } from "./evmsCapstones";
 import { FPA_CAPSTONES } from "./fpaCapstones";
+import { BCA_CAPSTONES } from "./bcaCapstones";
 
 const THEMES = {
   evms: {
@@ -14,6 +15,11 @@ const THEMES = {
     text: "#e8e6f0", textDim: "#6b6b85", textMuted: "#4a4a60", green: "#10b981", red: "#ef4444", gold: "#f59e0b",
     font: "'DM Sans',sans-serif", mono: "'JetBrains Mono','SF Mono',monospace", display: "'Bebas Neue',cursive",
   },
+  bca: {
+    accent: "#3b82f6", accentGlow: "rgba(59,130,246,0.12)", bg: "#080d18", card: "#0f1626", border: "#1d2942",
+    text: "#e6ecf7", textDim: "#6b7a96", textMuted: "#465268", green: "#10b981", red: "#ef4444", gold: "#f59e0b",
+    font: "'DM Sans',sans-serif", mono: "'JetBrains Mono','SF Mono',monospace", display: "'Bebas Neue',cursive",
+  },
 };
 
 export default function CapstoneHub() {
@@ -23,7 +29,7 @@ export default function CapstoneHub() {
   const [running, setRunning] = useState(false);
 
   const T = THEMES[trackKey] || THEMES.evms;
-  const capstones = trackKey === "fpa" ? FPA_CAPSTONES : EVMS_CAPSTONES;
+  const capstones = trackKey === "fpa" ? FPA_CAPSTONES : trackKey === "bca" ? BCA_CAPSTONES : EVMS_CAPSTONES;
 
   // ─── RUNNING ────────────────────────────────────────────────────
   if (running && scenario) {
@@ -46,6 +52,7 @@ export default function CapstoneHub() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <TrackCard accent="#00c2ff" icon="🛩️" eyebrow="DEFENSE FINANCE" title="EVMS CAPSTONES" desc="Run a defense program through a quarter: contract, metrics, EAC, funding, variance, and the executive brief." count={`${EVMS_CAPSTONES.length} scenarios`} onClick={() => setTrackKey("evms")} />
           <TrackCard accent="#8b5cf6" icon="📈" eyebrow="FP&A" title="FP&A CAPSTONES" desc="Run a company through the cycle: statements, forecast, variance, working capital, and a capital allocation call." count={`${FPA_CAPSTONES.length} scenarios`} onClick={() => setTrackKey("fpa")} />
+          <TrackCard accent="#3b82f6" icon="✈️" eyebrow="AIRCRAFT CONTRACTS" title="AIRCRAFT CAPSTONES" desc="Run an aircraft deal end-to-end: order structure, pricing and escalation, negotiation and commitments, and revenue recognition at delivery." count={`${BCA_CAPSTONES.length} scenarios`} onClick={() => setTrackKey("bca")} />
         </div>
       </Wrap>
     );

@@ -1,9 +1,9 @@
-// BCA Commercial Airplanes Contracts — deep lesson content
+// Commercial Aircraft Contracts — deep lesson content
 // Export: BCA_LESSON_CONTENT keyed by moduleId
 // NOTE: Commercial aircraft pricing, escalation coefficients, discount levels,
 // and pre-delivery payment schedules are confidential and contract-specific.
 // All numeric examples below are ILLUSTRATIVE and rounded to teach mechanics —
-// they are not actual Boeing figures. Review before sharing publicly.
+// they are not actual figures from any manufacturer. Review before sharing publicly.
 
 export const BCA_LESSON_CONTENT = {
   // ════════════════════════════════════════════════════════════════
@@ -14,9 +14,9 @@ export const BCA_LESSON_CONTENT = {
       { type: "prose", text: "Before you can record a single contractual commitment, you have to understand the market that produces it. Commercial aircraft sales are unlike almost any other product: a handful of manufacturers sell multi-decade, multi-billion-dollar assets to a small, sophisticated set of buyers, under contracts negotiated over months or years and performed over a decade or more. The finance function sits in the middle of that machine." },
 
       { type: "heading", text: "The duopoly and its customers" },
-      { type: "prose", text: "Large commercial jets are effectively a duopoly: Boeing and Airbus dominate aircraft above ~130 seats, with regional players (Embraer, and emerging entrants like COMAC) below that. Because there are only two real options for most fleets, every campaign is intensely competitive, and customers know it. That competitive structure is the single most important backdrop to BCA deal strategy — it shapes pricing, concessions, and the leverage on both sides." },
+      { type: "prose", text: "Large commercial jets are effectively a duopoly: Boeing and Airbus dominate aircraft above ~130 seats, with regional players (Embraer, and emerging entrants like COMAC) below that. Because there are only two real options for most fleets, every campaign is intensely competitive, and customers know it. That competitive structure is the single most important backdrop to commercial aircraft deal strategy — it shapes pricing, concessions, and the leverage on both sides." },
       { type: "terms", items: [
-        { abbr: "OEM", full: "Original Equipment Manufacturer", desc: "The aircraft maker — Boeing Commercial Airplanes (BCA) or Airbus. Sells airframes; engines come from separate makers (GE, Rolls-Royce, Pratt & Whitney, CFM) and may be bought by the airline or bundled." },
+        { abbr: "OEM", full: "Original Equipment Manufacturer", desc: "The aircraft maker — Boeing or Airbus for large commercial jets. Sells airframes; engines come from separate makers (GE, Rolls-Royce, Pratt & Whitney, CFM) and may be bought by the airline or bundled." },
         { abbr: "Airlines", full: "Operating carriers", desc: "Buy aircraft to fly routes. Range from global flag carriers to low-cost carriers (LCCs). Driven by fleet planning, route economics, and financing access." },
         { abbr: "Lessors", full: "Leasing companies", desc: "Buy aircraft to lease to airlines (AerCap, Air Lease, SMBC, Avolon). Now a huge share of orders — they provide airlines flexibility and off-balance-sheet fleet, and they place large speculative orders." },
       ] },
@@ -36,7 +36,7 @@ export const BCA_LESSON_CONTENT = {
         { abbr: "Book-to-bill", full: "Orders ÷ Deliveries", desc: "Net new orders divided by deliveries in a period. Above 1.0 means backlog is growing; below 1.0 means it's shrinking. A health indicator for the franchise." },
         { abbr: "Skyline", full: "The delivery stream", desc: "The forward schedule of which aircraft deliver to which customer in which slot. Managing the skyline — slots, swaps, deferrals — is central to contracts and production planning." },
       ] },
-      { type: "callout", variant: "key", title: "An order is not revenue", body: "A firm order is a binding commitment and goes into backlog, but it is NOT revenue and produces almost no immediate cash beyond the deposit. Revenue is recognized at delivery, often years later. Confusing 'orders' with 'sales/revenue' is the most common conceptual error for people new to BCA." },
+      { type: "callout", variant: "key", title: "An order is not revenue", body: "A firm order is a binding commitment and goes into backlog, but it is NOT revenue and produces almost no immediate cash beyond the deposit. Revenue is recognized at delivery, often years later. Confusing 'orders' with 'sales/revenue' is the most common conceptual error for people new to commercial aircraft contracts." },
 
       { type: "heading", text: "The product families" },
       { type: "prose", text: "Deals are organized around aircraft families, and the family matters for price, delivery timing, and strategic positioning. Broadly, narrowbodies (single-aisle, like the 737 family) serve high-volume short/medium-haul routes; widebodies (twin-aisle, like the 777 and 787) serve long-haul and high-capacity routes. Narrowbodies sell in huge volumes at lower unit prices; widebodies sell in smaller numbers at much higher unit prices. The economics, lead times, and negotiation dynamics differ accordingly." },
@@ -89,7 +89,7 @@ export const BCA_LESSON_CONTENT = {
       { type: "callout", variant: "warning", title: "Beware the headline order value", body: "Announced orders are typically quoted at list prices, which can be dramatically higher than actual transaction prices after concessions. The disclosed backlog and the real economics are based on negotiated prices, not list. Never take a press-release dollar figure as the deal's true value." },
 
       { type: "heading", text: "The handoff to contracts" },
-      { type: "prose", text: "When a campaign closes, the commercial intent must become a precise, executable contract — and then accurate entries in the financial systems. This is where your rotation lives: ensuring the negotiated base prices, escalation provisions, payment schedules, concessions, options, and any financing commitments are captured correctly, so backlog, revenue, and cash all reflect reality. A great deal poorly recorded becomes a reporting and audit problem." },
+      { type: "prose", text: "When a campaign closes, the commercial intent must become a precise, executable contract — and then accurate entries in the financial systems. This is where contracts finance lives: ensuring the negotiated base prices, escalation provisions, payment schedules, concessions, options, and any financing commitments are captured correctly, so backlog, revenue, and cash all reflect reality. A great deal poorly recorded becomes a reporting and audit problem." },
     ],
   },
 
@@ -173,7 +173,7 @@ export const BCA_LESSON_CONTENT = {
 
       { type: "heading", text: "Concessions and credit memos" },
       { type: "prose", text: "Rather than simply lowering the headline price, OEMs often grant value through credit memos — credits the customer can apply at or before delivery (against the aircraft price, spares, training, or other goods/services). Economically these are price reductions, and under revenue accounting they reduce the transaction price. Tracking each concession, its trigger, and its application is a core recording task." },
-      { type: "callout", variant: "warning", title: "Concessions reduce revenue — record them where they belong", body: "A credit memo applied against the aircraft reduces the aircraft's transaction price; one applied against future spares or services may allocate elsewhere. Mis-recording concessions distorts both the aircraft margin and the timing of revenue. This is exactly the kind of complex commitment the rotation focuses on getting right." },
+      { type: "callout", variant: "warning", title: "Concessions reduce revenue — record them where they belong", body: "A credit memo applied against the aircraft reduces the aircraft's transaction price; one applied against future spares or services may allocate elsewhere. Mis-recording concessions distorts both the aircraft margin and the timing of revenue. This is exactly the kind of complex commitment that contracts finance has to get right." },
 
       { type: "heading", text: "The pre-delivery payment (PDP) ladder" },
       { type: "prose", text: "Customers don't pay everything at delivery. They make pre-delivery payments (also called advance payments) on a schedule — a deposit at signing, then installments at defined milestones before delivery — with the balance due at delivery. PDPs partially fund production and signal commitment. The OEM holds this customer cash in advance of delivering anything." },
@@ -228,7 +228,7 @@ export const BCA_LESSON_CONTENT = {
 
       { type: "heading", text: "Termination and the fate of PDPs" },
       { type: "prose", text: "If a customer defaults or a deal terminates, the contract governs what happens to pre-delivery payments, the delivery slot, and damages. Depending on terms and cause, PDPs may be forfeited, refundable, or offset against damages, and the OEM may remarket the slot or aircraft. These outcomes have direct financial-statement consequences, so the termination terms must be understood when the commitment is recorded — not discovered later." },
-      { type: "callout", variant: "key", title: "Capture the terms, not just the price", body: "The negotiated price is only part of the deal. Performance guarantees, LDs, MFC clauses, escalation caps, flexibility instruments, and termination rights all carry financial consequences and must be captured in the systems and surfaced for accounting and disclosure. The rotation is fundamentally about translating these complex terms into accurate records." },
+      { type: "callout", variant: "key", title: "Capture the terms, not just the price", body: "The negotiated price is only part of the deal. Performance guarantees, LDs, MFC clauses, escalation caps, flexibility instruments, and termination rights all carry financial consequences and must be captured in the systems and surfaced for accounting and disclosure. Contracts finance is fundamentally about translating these complex terms into accurate records." },
     ],
   },
 
@@ -237,7 +237,7 @@ export const BCA_LESSON_CONTENT = {
     title: "Contractual Commitments & Customer Financing",
     subtitle: "Backstop financing, residual value and asset guarantees, trade-ins, contingent liabilities, and recording them right.",
     blocks: [
-      { type: "prose", text: "Selling an aircraft can mean taking on obligations far beyond building and delivering it. To win deals, OEMs sometimes commit to help the customer finance the purchase or to protect the aircraft's future value. These commitments can create contingent liabilities that don't show as debt but represent real risk — and accurately identifying, recording, and disclosing them is precisely the heart of this rotation." },
+      { type: "prose", text: "Selling an aircraft can mean taking on obligations far beyond building and delivering it. To win deals, OEMs sometimes commit to help the customer finance the purchase or to protect the aircraft's future value. These commitments can create contingent liabilities that don't show as debt but represent real risk — and accurately identifying, recording, and disclosing them is precisely the heart of contracts finance." },
 
       { type: "heading", text: "Why financing commitments exist" },
       { type: "prose", text: "Aircraft are enormously expensive, and not every customer can readily finance a large order, especially weaker-credit airlines or in tight financing markets. To close deals, the OEM may stand behind the customer's financing in various ways. These are competitive tools — but each one is a promise that can cost money later." },
@@ -257,10 +257,10 @@ export const BCA_LESSON_CONTENT = {
         ["Reasonably possible", "Either", "Disclose the nature and range"],
         ["Remote", "Either", "Generally no accrual or disclosure"],
       ] },
-      { type: "callout", variant: "warning", title: "A commitment unrecorded is a future surprise", body: "If a financing or value guarantee isn't captured when the deal is signed, it can surface later as an unanticipated charge or a disclosure gap. Identifying these at contracting and recording them in the systems — with their triggers and exposure — is the control that prevents nasty surprises. This is the rotation's core mandate." },
+      { type: "callout", variant: "warning", title: "A commitment unrecorded is a future surprise", body: "If a financing or value guarantee isn't captured when the deal is signed, it can surface later as an unanticipated charge or a disclosure gap. Identifying these at contracting and recording them in the systems — with their triggers and exposure — is the control that prevents nasty surprises. It's a core mandate of contracts finance." },
 
       { type: "heading", text: "Recording commitments in the financial systems" },
-      { type: "prose", text: "The practical task: when a deal closes, translate every commitment — firm order value, payment schedule, concessions, performance guarantees/LDs, MFC obligations, and any financing or value guarantees — into accurate, complete entries in the BCA financial systems. These records feed backlog, revenue recognition, cash forecasting, contingency tracking, and disclosure. The rotation explicitly targets an enhanced approach to doing this efficiently and accurately, including new tools and process improvements." },
+      { type: "prose", text: "The practical task: when a deal closes, translate every commitment — firm order value, payment schedule, concessions, performance guarantees/LDs, MFC obligations, and any financing or value guarantees — into accurate, complete entries in the financial systems. These records feed backlog, revenue recognition, cash forecasting, contingency tracking, and disclosure. The goal is an enhanced approach to doing this efficiently and accurately, including better tools and process improvements." },
       { type: "list", items: [
         "Firm orders → backlog value and units (net negotiated price, escalated).",
         "PDP schedule → expected cash inflows and contract-liability build-up.",
@@ -269,7 +269,7 @@ export const BCA_LESSON_CONTENT = {
         "Financing commitments / RVGs / trade-ins → contingent liability identification, exposure quantification, and disclosure.",
         "Options / rights → tracked separately from firm backlog; not revenue until exercised.",
       ] },
-      { type: "callout", variant: "key", title: "Accuracy and completeness are the whole game", body: "The financial integrity of backlog, revenue, cash, and disclosure all depend on these records being accurate AND complete. A missed commitment or a mis-keyed price doesn't stay local — it flows into reported results. Efficient, well-controlled recording of complex commitments is both the rotation's purpose and a genuine enterprise risk control." },
+      { type: "callout", variant: "key", title: "Accuracy and completeness are the whole game", body: "The financial integrity of backlog, revenue, cash, and disclosure all depend on these records being accurate AND complete. A missed commitment or a mis-keyed price doesn't stay local — it flows into reported results. Efficient, well-controlled recording of complex commitments is both the purpose of contracts finance and a genuine enterprise risk control." },
 
       { type: "heading", text: "Disclosure obligations" },
       { type: "prose", text: "Several of these items must be disclosed externally: firm backlog, purchase and other contractual obligations, and material financing commitments and guarantees. Investors and regulators rely on these disclosures to understand future revenue and off-balance-sheet exposure. The accuracy of disclosure traces directly back to how well commitments were recorded at the source — which is where you sit." },
@@ -281,7 +281,7 @@ export const BCA_LESSON_CONTENT = {
     title: "Revenue Recognition & Delivery",
     subtitle: "ASC 606 for aircraft — performance obligations, control transfer at delivery, contract liabilities, and variable consideration.",
     blocks: [
-      { type: "prose", text: "All the contract terms eventually resolve into one question: when and how much revenue does Boeing recognize? For commercial aircraft, the answer is governed by ASC 606, and it hinges on a single moment — the transfer of control at delivery. Everything before that is a build-up of obligations and advance cash; everything is earned at the point control passes." },
+      { type: "prose", text: "All the contract terms eventually resolve into one question: when and how much revenue does the manufacturer recognize? For commercial aircraft, the answer is governed by ASC 606, and it hinges on a single moment — the transfer of control at delivery. Everything before that is a build-up of obligations and advance cash; everything is earned at the point control passes." },
 
       { type: "heading", text: "The five-step model, applied to aircraft" },
       { type: "list", items: [
@@ -293,7 +293,7 @@ export const BCA_LESSON_CONTENT = {
       ] },
 
       { type: "heading", text: "Point-in-time recognition at delivery" },
-      { type: "prose", text: "An aircraft sale is recognized at a point in time, not over time — Boeing recognizes the aircraft's revenue when control transfers to the customer, which generally occurs at delivery: the customer accepts the aircraft, title and risk pass, and the customer can direct its use and obtain its benefits. Until that moment, no aircraft revenue is recognized, regardless of how much has been built or paid." },
+      { type: "prose", text: "An aircraft sale is recognized at a point in time, not over time — the OEM recognizes the aircraft's revenue when control transfers to the customer, which generally occurs at delivery: the customer accepts the aircraft, title and risk pass, and the customer can direct its use and obtain its benefits. Until that moment, no aircraft revenue is recognized, regardless of how much has been built or paid." },
       { type: "callout", variant: "key", title: "Control transfer is the trigger", body: "Indicators of control transfer include the customer's acceptance, transfer of legal title, transfer of physical possession, transfer of risks and rewards, and a present right to payment. For aircraft these align at delivery — so delivery is the revenue event. Production progress and PDP cash do not create revenue." },
 
       { type: "heading", text: "Contract liabilities: the PDP build-up" },

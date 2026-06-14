@@ -24,7 +24,7 @@ const saveUser = async (name, pin, data) => {
   try { await setDoc(doc(db, "bca-users", userDocId(name, pin)), data); } catch {}
 };
 
-// ─── Design tokens (steel-blue identity for BCA Contracts) ────────
+// ─── Design tokens (steel-blue identity for Aircraft Contracts) ───
 const T = {
   bg: "#080d18", card: "#0f1626", border: "#1d2942",
   accent: "#3b82f6", accentGlow: "rgba(59,130,246,0.12)",
@@ -62,7 +62,7 @@ const ProgressBar = ({ current, total }) => (
 const calloutStyle = {
   key: { bg: "rgba(59,130,246,0.08)", border: "#3b82f644", label: "📌 KEY CONCEPT", labelColor: T.accent },
   warning: { bg: "rgba(239,68,68,0.07)", border: "#ef444444", label: "⚠️ WATCH OUT", labelColor: T.red },
-  insight: { bg: "rgba(245,158,11,0.07)", border: "#f59e0b44", label: "✈️ BCA INSIGHT", labelColor: T.gold },
+  insight: { bg: "rgba(245,158,11,0.07)", border: "#f59e0b44", label: "✈️ INDUSTRY INSIGHT", labelColor: T.gold },
 };
 
 function ContentBlock({ block }) {
@@ -399,10 +399,10 @@ export default function BCAModule() {
         {screen === "login" && (
           <div>
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 8 }}>BCA CONTRACTS TRACK</div>
+              <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 8 }}>AIRCRAFT CONTRACTS TRACK</div>
               <h1 style={{ fontFamily: T.display, fontSize: 42, letterSpacing: 3, color: T.text, lineHeight: 1, marginBottom: 10 }}>COMMERCIAL AIRCRAFT CONTRACTS</h1>
               <p style={{ fontSize: 14, color: T.textDim, lineHeight: 1.7 }}>
-                A ground-up course in Boeing Commercial Airplanes contracts and aerospace airline deals — the market and duopoly, sales campaigns and deal strategy, the Purchase Agreement, pricing and escalation, negotiation and commercial terms, contractual commitments and customer financing, and revenue recognition at delivery.
+                A ground-up course in commercial aircraft and aerospace airline contracts — the market and duopoly, sales campaigns and deal strategy, the Purchase Agreement, pricing and escalation, negotiation and commercial terms, contractual commitments and customer financing, and revenue recognition at delivery.
               </p>
             </div>
             <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, padding: 24 }}>
@@ -430,7 +430,7 @@ export default function BCAModule() {
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
               <div>
-                <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 6 }}>BCA CONTRACTS TRACK</div>
+                <div style={{ fontSize: 12, fontFamily: T.mono, color: T.accent, letterSpacing: 3, marginBottom: 6 }}>AIRCRAFT CONTRACTS TRACK</div>
                 <h1 style={{ fontFamily: T.display, fontSize: 34, letterSpacing: 3, color: T.text, lineHeight: 1 }}>COMMERCIAL AIRCRAFT CONTRACTS</h1>
               </div>
               <button onClick={logout} style={{ background: T.card, border: `1px solid ${T.border}`, color: T.textDim, borderRadius: 8, padding: "6px 12px", fontSize: 11, cursor: "pointer", fontFamily: T.mono, flexShrink: 0 }}>Sign Out</button>

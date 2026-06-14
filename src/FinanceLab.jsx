@@ -27,9 +27,9 @@ const TRACKS = [
   },
   {
     id: "bca", accent: T.blue, icon: "✈️",
-    eyebrow: "BCA CONTRACTS TRACK",
+    eyebrow: "AIRCRAFT CONTRACTS TRACK",
     title: "AIRCRAFT CONTRACTS",
-    desc: "Boeing Commercial Airplanes & aerospace airline contracts, ground-up. The market and duopoly, sales campaigns and deal strategy, the Purchase Agreement, pricing and escalation, negotiation, contractual commitments and financing, and revenue recognition at delivery.",
+    desc: "Commercial aircraft & aerospace airline contracts, ground-up. The market and duopoly, sales campaigns and deal strategy, the Purchase Agreement, pricing and escalation, negotiation, contractual commitments and financing, and revenue recognition at delivery.",
     tags: ["7 Modules", "Deal Strategy + ASC 606", "Practice + Exams"],
   },
 ];
