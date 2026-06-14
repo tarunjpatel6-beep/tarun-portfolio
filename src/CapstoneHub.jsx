@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CapstoneRunner from "./CapstoneRunner";
 import { EVMS_CAPSTONES } from "./evmsCapstones";
 import { FPA_CAPSTONES } from "./fpaCapstones";
 import { BCA_CAPSTONES } from "./bcaCapstones";
+import { loadVisibility } from "./trainingConfig";
 
 const THEMES = {
   evms: {
@@ -27,9 +28,13 @@ export default function CapstoneHub() {
   const [scenario, setScenario] = useState(null);
   const [stageIdx, setStageIdx] = useState(null); // null = full run; number = modular
   const [running, setRunning] = useState(false);
+  const [hidden, setHidden] = useState({});
+  useEffect(() => { loadVisibility().then(setHidden); }, []);
 
   const T = THEMES[trackKey] || THEMES.evms;
-  const capstones = trackKey === "fpa" ? FPA_CAPSTONES : trackKey === "bca" ? BCA_CAPSTONES : EVMS_CAPSTONES;
+  const baseCapstones = trackKey === "fpa" ? FPA_CAPSTONES : trackKey === "bca" ? BCA_CAPSTONES : EVMS_CAPSTONES;
+  const capstones = baseCapstones.filter(c => !hidden[`capstone:${c.id}`]);
+  const visN = (arr) => arr.filter(c => !hidden[`capstone:${c.id}`]).length;
 
   // ─── RUNNING ────────────────────────────────────────────────────
   if (running && scenario) {
@@ -50,9 +55,9 @@ export default function CapstoneHub() {
       <Wrap T={THEMES.evms}>
         <Head title="CAPSTONE PROJECTS" sub="Apply everything in a connected, real-world case. Choose a track — then run the full project end-to-end, or drill any single stage on its own." />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          <TrackCard accent="#00c2ff" icon="🛩️" eyebrow="DEFENSE FINANCE" title="EVMS CAPSTONES" desc="Run a defense program through a quarter: contract, metrics, EAC, funding, variance, and the executive brief." count={`${EVMS_CAPSTONES.length} scenarios`} onClick={() => setTrackKey("evms")} />
-          <TrackCard accent="#8b5cf6" icon="📈" eyebrow="FP&A" title="FP&A CAPSTONES" desc="Run a company through the cycle: statements, forecast, variance, working capital, and a capital allocation call." count={`${FPA_CAPSTONES.length} scenarios`} onClick={() => setTrackKey("fpa")} />
-          <TrackCard accent="#3b82f6" icon="✈️" eyebrow="AIRCRAFT CONTRACTS" title="AIRCRAFT CAPSTONES" desc="Run an aircraft deal end-to-end: order structure, pricing and escalation, negotiation and commitments, and revenue recognition at delivery." count={`${BCA_CAPSTONES.length} scenarios`} onClick={() => setTrackKey("bca")} />
+          {visN(EVMS_CAPSTONES) > 0 && <TrackCard accent="#00c2ff" icon="🛩️" eyebrow="DEFENSE FINANCE" title="EVMS CAPSTONES" desc="Run a defense program through a quarter: contract, metrics, EAC, funding, variance, and the executive brief." count={`${visN(EVMS_CAPSTONES)} scenarios`} onClick={() => setTrackKey("evms")} />}
+          {visN(FPA_CAPSTONES) > 0 && <TrackCard accent="#8b5cf6" icon="📈" eyebrow="FP&A" title="FP&A CAPSTONES" desc="Run a company through the cycle: statements, forecast, variance, working capital, and a capital allocation call." count={`${visN(FPA_CAPSTONES)} scenarios`} onClick={() => setTrackKey("fpa")} />}
+          {visN(BCA_CAPSTONES) > 0 && <TrackCard accent="#3b82f6" icon="✈️" eyebrow="AIRCRAFT CONTRACTS" title="AIRCRAFT CAPSTONES" desc="Run an aircraft deal end-to-end: order structure, pricing and escalation, negotiation and commitments, and revenue recognition at delivery." count={`${visN(BCA_CAPSTONES)} scenarios`} onClick={() => setTrackKey("bca")} />}
         </div>
       </Wrap>
     );
