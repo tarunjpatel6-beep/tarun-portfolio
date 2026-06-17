@@ -42,7 +42,9 @@ const RANKS = [
   { name: "Analyst", min: 300, color: "#3b82f6", icon: "📊" },
   { name: "Sr. Analyst", min: 800, color: "#8b5cf6", icon: "📈" },
   { name: "Manager", min: 1800, color: "#f59e0b", icon: "💼" },
+  { name: "Senior Manager", min: 2600, color: "#fb923c", icon: "🗂️" },
   { name: "Director", min: 3500, color: "#ef4444", icon: "🎯" },
+  { name: "Senior Director", min: 4700, color: "#ec4899", icon: "🏅" },
   { name: "VP Finance", min: 6000, color: "#10b981", icon: "⚡" },
   { name: "CFO", min: 12000, color: "#f97316", icon: "👔" },
 ];
@@ -458,16 +460,20 @@ export default function FinanceArena() {
           {allBoards.length === 0 && <div style={{ textAlign: "center", color: "#555", padding: 20 }}>No scores yet. Be the first!</div>}
           {allBoards.map((p, i) => {
             const me = p.name.toLowerCase() === playerName.toLowerCase();
+            const rank = getRank(p.xp);
             return (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 8px", borderBottom: i < allBoards.length - 1 ? "1px solid #1c1c28" : "none", background: me ? "rgba(245,158,11,0.06)" : "transparent", borderRadius: 8 }}>
                 <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 20, width: 30, color: i === 0 ? "#f59e0b" : i === 1 ? "#9ca3af" : i === 2 ? "#cd7f32" : "#555" }}>{i + 1}</div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, color: me ? "#f59e0b" : "#e8e6f0", fontWeight: me ? 700 : 500 }}>{p.name}{me ? " (you)" : ""}</div>
-                  <div style={{ display: "flex", gap: 5, marginTop: 3 }}>
-                    {DOMAINS.map(d => <span key={d.id} title={d.label} style={{ width: 8, height: 8, borderRadius: "50%", background: p.domains.includes(d.id) ? d.accent : "#22222e" }} />)}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
+                    <span style={{ fontSize: 10, fontFamily: "monospace", color: rank.color }}>{rank.icon} {rank.name}</span>
+                    <div style={{ display: "flex", gap: 5 }}>
+                      {DOMAINS.map(d => <span key={d.id} title={d.label} style={{ width: 8, height: 8, borderRadius: "50%", background: p.domains.includes(d.id) ? d.accent : "#22222e" }} />)}
+                    </div>
                   </div>
                 </div>
-                <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 20, color: getRank(p.xp).color }}>{p.xp.toLocaleString()}</div>
+                <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 20, color: rank.color }}>{p.xp.toLocaleString()}</div>
               </div>
             );
           })}
@@ -491,11 +497,15 @@ function LeaderboardPanel({ board, accent, title, playerName, admin, onTap, onRe
       {shown.length === 0 && <div style={{ textAlign: "center", color: "#555", padding: 16, fontSize: 13 }}>No scores yet — play a game to get on the board!</div>}
       {shown.map((p, i) => {
         const me = p.name.toLowerCase() === playerName.toLowerCase();
+        const rank = getRank(p.xp);
         return (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", borderBottom: i < shown.length - 1 ? "1px solid #1c1c28" : "none", background: me ? `${accent}10` : "transparent", borderRadius: 6 }}>
             <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 17, width: 26, color: i === 0 ? "#f59e0b" : i === 1 ? "#9ca3af" : i === 2 ? "#cd7f32" : "#555" }}>{i + 1}</div>
-            <div style={{ flex: 1, fontSize: 13, color: me ? accent : "#cbd5e1", fontWeight: me ? 700 : 500 }}>{p.name}{me ? " (you)" : ""}</div>
-            <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 17, color: getRank(p.xp).color }}>{p.xp.toLocaleString()}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, color: me ? accent : "#cbd5e1", fontWeight: me ? 700 : 500 }}>{p.name}{me ? " (you)" : ""}</div>
+              <div style={{ fontSize: 10, fontFamily: "monospace", color: rank.color, marginTop: 1 }}>{rank.icon} {rank.name}</div>
+            </div>
+            <div style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 17, color: rank.color }}>{p.xp.toLocaleString()}</div>
             {admin && <button onClick={() => onRemove(p.name)} title="Remove" style={{ background: "transparent", border: "1px solid #ef444455", color: "#ef4444", borderRadius: 6, padding: "3px 8px", fontSize: 11, cursor: "pointer" }}>✕</button>}
           </div>
         );
