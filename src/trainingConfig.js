@@ -18,7 +18,7 @@ const db = getFirestore(app);
 // Admin passphrase — CHANGE THIS to your own secret before deploying.
 // NOTE: light obscurity only (it lives in the site code), but it keeps the
 // admin panel hidden from casual visitors. Firestore is open in test mode.
-export const TRAINING_ADMIN_PASS = "tp-training-admin-2026";
+export const TRAINING_ADMIN_PASS = "tswift";
 
 // Read the hidden map: { "track:bca": true, "capstone:apex": true, ... }
 export const loadVisibility = async () => {
