@@ -48,4 +48,9 @@ export const TRAINING_CATALOG = {
     { key: "capstone:paccrown", label: "Pacific Crown Airways — Aircraft" },
     { key: "capstone:skylease", label: "SkyLease Global — Aircraft" },
   ],
+  arenas: [
+    { key: "arena:fpa", label: "FP&A Arena" },
+    { key: "arena:evms", label: "EVMS Arena" },
+    { key: "arena:bca", label: "Aircraft Contracts Arena" },
+  ],
 };

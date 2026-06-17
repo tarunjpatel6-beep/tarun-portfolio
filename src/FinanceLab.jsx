@@ -170,6 +170,9 @@ function AdminPanel({ hidden, toggle, onClose }) {
         <Row k={TRAINING_CATALOG.capstoneSection.key} label={TRAINING_CATALOG.capstoneSection.label} />
         {TRAINING_CATALOG.capstones.map(c => <Row key={c.key} k={c.key} label={c.label} />)}
 
+        <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: "#f97316", letterSpacing: 2, margin: "18px 0 4px" }}>ARENAS</div>
+        {TRAINING_CATALOG.arenas.map(a => <Row key={a.key} k={a.key} label={a.label} />)}
+
         <button onClick={onClose} style={{ width: "100%", marginTop: 20, background: "#10b981", border: "none", color: "#fff", borderRadius: 10, padding: 12, fontFamily: "'Bebas Neue',cursive", fontSize: 16, letterSpacing: 2, cursor: "pointer" }}>DONE</button>
       </div>
     </div>
