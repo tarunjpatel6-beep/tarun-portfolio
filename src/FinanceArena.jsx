@@ -239,6 +239,17 @@ function Gauntlet({ pool, accent, onScore, onExit }) {
   );
 }
 
+// ─── Layout wrapper (module-level so it never remounts on re-render) ──
+function Wrap({ children, max = 600, notif }) {
+  return (
+    <div style={{ minHeight: "100vh", background: "#080810", color: "#e8e6f0", fontFamily: "'DM Sans',sans-serif", paddingTop: 80 }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1}}`}</style>
+      {notif && <div style={{ position: "fixed", top: 90, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: notif.color, color: "#fff", padding: "10px 22px", borderRadius: 30, fontSize: 14, fontWeight: 600, boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>{notif.msg}</div>}
+      <div style={{ maxWidth: max, margin: "0 auto", padding: "30px 20px", animation: "fadeIn .4s ease" }}>{children}</div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // MAIN
 // ═══════════════════════════════════════════════════════════════════
@@ -317,19 +328,11 @@ export default function FinanceArena() {
 
   const visibleDomains = DOMAINS.filter(d => !hidden[`arena:${d.id}`]);
 
-  const Wrap = ({ children, max = 600 }) => (
-    <div style={{ minHeight: "100vh", background: "#080810", color: "#e8e6f0", fontFamily: "'DM Sans',sans-serif", paddingTop: 80 }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1}}`}</style>
-      {notif && <div style={{ position: "fixed", top: 90, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: notif.color, color: "#fff", padding: "10px 22px", borderRadius: 30, fontSize: 14, fontWeight: 600, boxShadow: "0 6px 20px rgba(0,0,0,.4)" }}>{notif.msg}</div>}
-      <div style={{ maxWidth: max, margin: "0 auto", padding: "30px 20px", animation: "fadeIn .4s ease" }}>{children}</div>
-    </div>
-  );
-
   // ─── LOBBY ──────────────────────────────────────────────────────
   if (screen === "lobby") {
     if (!playerName) {
       return (
-        <Wrap>
+        <Wrap notif={notif}>
           <div style={{ textAlign: "center", marginBottom: 26 }}>
             <div onClick={tapTrigger} style={{ fontSize: 12, fontFamily: "monospace", color: admin ? "#10b981" : "#f97316", letterSpacing: 4, marginBottom: 8, userSelect: "none" }}>GAMIFIED FINANCE{admin ? " · ADMIN" : ""}</div>
             <h1 style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 60, letterSpacing: 4, margin: 0, lineHeight: .9 }}>FINANCE ARENA</h1>
@@ -346,7 +349,7 @@ export default function FinanceArena() {
       );
     }
     return (
-      <Wrap max={720}>
+      <Wrap notif={notif} max={720}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <div onClick={tapTrigger} style={{ fontSize: 12, fontFamily: "monospace", color: admin ? "#10b981" : "#f97316", letterSpacing: 4, marginBottom: 8, userSelect: "none" }}>WELCOME, {playerName.toUpperCase()}{admin ? " · ADMIN" : ""}</div>
           <h1 style={{ fontFamily: "'Bebas Neue',cursive", fontSize: 52, letterSpacing: 4, margin: 0, lineHeight: .9 }}>CHOOSE YOUR ARENA</h1>
@@ -376,14 +379,14 @@ export default function FinanceArena() {
 
   // ─── HUB ────────────────────────────────────────────────────────
   if (screen === "hub" && domain) {
-    if (loading) return <Wrap><div style={{ textAlign: "center", padding: 50, color: "#555", fontFamily: "monospace" }}>Loading {domain.label} arena…</div></Wrap>;
+    if (loading) return <Wrap notif={notif}><div style={{ textAlign: "center", padding: 50, color: "#555", fontFamily: "monospace" }}>Loading {domain.label} arena…</div></Wrap>;
     const xp = playerXP();
     const rank = getRank(xp);
     const next = RANKS.find(r => r.min > xp);
     const pct = next ? Math.round(((xp - rank.min) / (next.min - rank.min)) * 100) : 100;
     const pos = board.findIndex(p => p.name.toLowerCase() === playerName.toLowerCase()) + 1;
     return (
-      <Wrap>
+      <Wrap notif={notif}>
         <button onClick={() => setScreen("lobby")} style={{ background: "#11111c", border: "1px solid #22222e", color: "#94a3b8", borderRadius: 8, padding: "7px 13px", fontSize: 11, cursor: "pointer", fontFamily: "monospace", marginBottom: 18 }}>← All Arenas</button>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <span style={{ fontSize: 28 }}>{domain.icon}</span>
@@ -431,7 +434,7 @@ export default function FinanceArena() {
   if (screen === "game" && domain) {
     const props = { pool: domain.pool, accent: domain.accent, onScore: handleScore, onExit: () => setScreen("hub") };
     return (
-      <Wrap>
+      <Wrap notif={notif}>
         <div style={{ fontFamily: "monospace", fontSize: 11, color: domain.accent, letterSpacing: 2, marginBottom: 16 }}>{domain.label.toUpperCase()} · {GAMES.find(g => g.id === game)?.title.toUpperCase()}</div>
         {game === "speed" && <SpeedRound {...props} />}
         {game === "streak" && <StreakBlitz {...props} />}
@@ -442,9 +445,9 @@ export default function FinanceArena() {
 
   // ─── HALL OF FAME ───────────────────────────────────────────────
   if (screen === "hof") {
-    if (loading || !allBoards) return <Wrap><div style={{ textAlign: "center", padding: 50, color: "#555", fontFamily: "monospace" }}>Tallying all domains…</div></Wrap>;
+    if (loading || !allBoards) return <Wrap notif={notif}><div style={{ textAlign: "center", padding: 50, color: "#555", fontFamily: "monospace" }}>Tallying all domains…</div></Wrap>;
     return (
-      <Wrap>
+      <Wrap notif={notif}>
         <button onClick={() => setScreen("lobby")} style={{ background: "#11111c", border: "1px solid #22222e", color: "#94a3b8", borderRadius: 8, padding: "7px 13px", fontSize: 11, cursor: "pointer", fontFamily: "monospace", marginBottom: 18 }}>← All Arenas</button>
         <div style={{ textAlign: "center", marginBottom: 18 }}>
           <div style={{ fontSize: 40 }}>🏆</div>
@@ -473,7 +476,7 @@ export default function FinanceArena() {
     );
   }
 
-  return <Wrap><div style={{ textAlign: "center", padding: 50 }}><button onClick={() => setScreen("lobby")} style={primaryBtn("#f97316")}>Back to Arenas</button></div></Wrap>;
+  return <Wrap notif={notif}><div style={{ textAlign: "center", padding: 50 }}><button onClick={() => setScreen("lobby")} style={primaryBtn("#f97316")}>Back to Arenas</button></div></Wrap>;
 }
 
 // ─── Leaderboard panel ────────────────────────────────────────────
